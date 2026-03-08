@@ -5,7 +5,7 @@
  *      Author: marco91
  */
 
-#include "stm32f401xe.h" /* Required for NVIC */
+#include "NVIC.h"
 #include "Timer.h"
 #include "RCC.h"
 
@@ -39,9 +39,6 @@ void Timer_Init(void)
 
 	/* Interrupt Enable */
 	TIM4_DIER |= (1 << TIM4_DIER_UIE_OFFSET);
-
-	/* Enable TIM4 interrupt in NVIC */
-	NVIC_EnableIRQ(TIM4_IRQn);
 }
 
 

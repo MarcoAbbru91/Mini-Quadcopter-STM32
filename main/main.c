@@ -17,12 +17,24 @@
  ******************************************************************************
  */
 
-#include <stdint.h>
+#include "NVIC.h"
 #include "RCC.h"
+#include "GPIO.h"
+#include "Timer.h"
+#include "SPI.h"
+
 
 #if !defined(__SOFT_FP__) && defined(__ARM_FP)
   #warning "FPU is not initialized, but the project is compiling for an FPU. Please initialize the FPU before use."
 #endif
+
+
+/****************************************************************************
+Global variables
+****************************************************************************/
+#define NULL         ((void *)0)
+uint32_t *pSPI_ReadBuffer = NULL;
+
 
 int main(void)
 {
@@ -36,6 +48,10 @@ int main(void)
 	/* Initialize PWM-related registers */
 	PWM_Init();
 
+	SPI_Init();
+
+	/* NVIC initialization - Enable_Interrupts */
+	NVIC_Init();
 
 	/* Loop forever */
 	for(;;);

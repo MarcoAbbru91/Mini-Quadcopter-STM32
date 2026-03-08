@@ -9,6 +9,7 @@
 #define FIRMWARE_INC_RCC_H_
 
 
+#include <stdint.h>
 #include "RCC_Cfg.h"
 
 /****************************************************************************
@@ -53,13 +54,26 @@ DEFINES
 /*****************************
  * Peripherals Clock Enable
  ****************************/
+ 
 /* APB1 Clock Enable Register offset */
 #define RCC_APB1_ENR_OFFSET   (0x40UL)
 /* APB1 Clock Enable Register address */
 #define RCC_APB1_ENR_ADDRESS    (RCC_BASE_ADDRESS + RCC_APB1_ENR_OFFSET)
-#define RCC_APB1                (* (volatile uint32_t *)(RCC_APB1_ENR_ADDRESS)) // typecast and dereference // @suppress("Line comments")
-/* APB1 Tim4 Clock Enable bit */
+#define RCC_APB1                (* (volatile uint32_t *)(RCC_APB1_ENR_ADDRESS)) // typecast and dereference
+/* APB1 Tim4 Clock Enable bit (PWM for motors control) */
 #define RCC_APB1_TIM4_EN       (2UL)
+/* APB1 SPI2 Clock Enable bit (BLE) */
+#define RCC_APB1_SPI2_EN       (14UL)
+
+
+/* APB2 Clock Enable Register offset */
+#define RCC_APB2_ENR_OFFSET   (0x44UL)
+/* APB2 Clock Enable Register address */
+#define RCC_APB2_ENR_ADDRESS    (RCC_BASE_ADDRESS + RCC_APB2_ENR_OFFSET)
+#define RCC_APB2                (* (volatile uint32_t *)(RCC_APB2_ENR_ADDRESS)) // typecast and dereference
+/* APB2 SPI1 Clock Enable bit (Sensors) */
+#define RCC_APB2_SPI1_EN       (12UL)
+
 
 /* AHB1 Clock Enable Register offset */
 #define RCC_AHB1_ENR_OFFSET   (0x30UL)
@@ -68,6 +82,8 @@ DEFINES
 #define RCC_AHB1                (* (volatile uint32_t *)(RCC_AHB1_ENR_ADDRESS)) // typecast and dereference // @suppress("Line comments")
 /* AHB1 GPIOB Clock Enable bit */
 #define RCC_AHB1_GPIOB_EN       (1UL)
+/* AHB1 GPIOB Clock Enable bit */
+#define RCC_AHB1_GPIOA_EN       (0UL)
 
 
 /****************************************************************************
