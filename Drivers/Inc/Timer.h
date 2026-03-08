@@ -8,6 +8,7 @@
 #ifndef FIRMWARE_INC_TIMER_H_
 #define FIRMWARE_INC_TIMER_H_
 
+#include <stdint.h>
 
 /****************************************************************************
 DEFINES
@@ -101,7 +102,7 @@ DEFINES
 FUNCTIONS PROTOTYPES
 ****************************************************************************/
 
-/* Initialize (Genera-Purpose) Timer peripheral */
+/* Initialize (General-Purpose) Timer peripheral */
 void Timer_Init();
 
 /* Initialize PWM peripheral */
