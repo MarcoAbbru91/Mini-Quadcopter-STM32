@@ -13,7 +13,9 @@
 
 
 /* Cortex-M4 Processor Exception's and Interrupt's IRQs */
+#define TIM4_IRQn 30U // TIM4 global Interrupt - derived from "Vector table for STM32F401xB/CSTM32F401xD/E"
 #define SPI1_IRQn 35U // SPI1 global Interrupt
+#define SPI2_IRQn 36U // SPI2 global Interrupt
 
 
 #define Prio_Lev_0   0x00U

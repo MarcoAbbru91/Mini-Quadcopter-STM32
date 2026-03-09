@@ -35,15 +35,26 @@ void NVIC_Init()
 	uint32_t *pISER_Addr;
 	uint8_t  ISER_AddrOffset;
 
+	/* PWM for motors */
+	Priority_IRQ(TIM4_IRQn, Prio_Lev_1); // 16 different priority levels are allowed by the ARM CPU. The lower the higher.
 	/* Sensors */
 	Priority_IRQ(SPI1_IRQn, Prio_Lev_4); // 16 different priority levels are allowed by the ARM CPU. The lower the higher.
+	/* BLE */
+	Priority_IRQ(SPI2_IRQn, Prio_Lev_3); // 16 different priority levels are allowed by the ARM CPU. The lower the higher.
+
 
 	/****** Enable IRQs in NVIC ******/
-
-	/* Calculate required address and offset for SPI1 */
+	/* For TIM4 no need for any address/offset calculation */
+	*pNVIC_ISER_BaseAddr |= (1 << TIM4_IRQn);
+	/* For SPI1 calculate required address and offset */
 	ISER_Numb = (SPI1_IRQn / 32); // For each ISERx we can configure up to 32 IRQs. For this reason the division by 32
 	pISER_Addr = (pNVIC_ISER_BaseAddr + ISER_Numb);// Address of IPRx related to our IRQ number
 	ISER_AddrOffset = (SPI1_IRQn % 32); // Calculates the offset inside the IPRx in which we can write our IRQ value
+	*pISER_Addr |= (1 << ISER_AddrOffset);
+	/* For SPI2 calculate required address and offset */
+	ISER_Numb = (SPI2_IRQn / 32); // For each ISERx we can configure up to 32 IRQs. For this reason the division by 32
+	pISER_Addr = (pNVIC_ISER_BaseAddr + ISER_Numb);// Address of IPRx related to our IRQ number
+	ISER_AddrOffset = (SPI2_IRQn % 32); // Calculates the offset inside the IPRx in which we can write our IRQ value
 	*pISER_Addr |= (1 << ISER_AddrOffset);
 }
 
