@@ -10,10 +10,17 @@
 
 
 #include <stdint.h>
+#include "RCC.h"
 
 /****************************************************************************
 DEFINES
 ****************************************************************************/
+
+#define Dummy_Write   (0x00U)
+#define SPI_Read_Operation   (0x80U) // 10000000
+#define SPI_Write_Operation  (0x7FU) // 01111111 - keep MSB to 0 while keeping all other bits at 1 since it will be used with an "& operation"
+
+
 
 /* Define base address specific to SPI1 (Sensors) */
 #define SPI1_BASE_ADDRESS    (0x40013000)
@@ -61,6 +68,8 @@ DEFINES
 #define SPI1_SR_OFFSET         (0x08UL)/* SPI Status Register address */
 #define SPI1_SR_BASE_ADDRESS   (SPI1_BASE_ADDRESS + SPI1_SR_OFFSET)
 #define SPI1_SR           (* (volatile uint32_t *)(SPI1_SR_BASE_ADDRESS)) // typecast and dereference
+/* SPI Status Register TXE Register offset */
+#define SPI_SR_TXE_OFFSET   (1UL)
 /* SPI Status Register RXNE Register offset */
 #define SPI_SR_RXNE_OFFSET  (0UL)
 
@@ -78,8 +87,15 @@ FUNCTIONS PROTOTYPES
 /* Initialize SPI peripheral */
 void SPI_Init();
 
-void SPI_Transmit();
+void SPI_Transmit(uint8_t Val);
 
-void SPI_Receive();
+uint8_t SPI_Receive(uint8_t DummyRead);
+
+/* SPI Write operation to configure slave's registers */
+void SPI_Write(uint8_t Addr, uint8_t Data);
+
+/* Reads data from slave */
+uint8_t SPI_Read(uint8_t SPI_Data_Read);
+
 
 #endif /* DRIVERS_INC_SPI_H_ */

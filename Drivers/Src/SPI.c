@@ -7,7 +7,6 @@
 
 
 #include "SPI.h"
-#include "RCC.h"
 
 
 void SPI_Init()
@@ -38,7 +37,7 @@ void SPI_Init()
 	SPI1_CR1 &= ~(1UL << SPI_CR1_BIDIMODE_OFFSET); // 2-lines unidirectional mode
 
 	/* Enables SPI Interrupt on data reception completion */
-	SPI1_CR2 |= (1UL << SPI_CR2_RXNEIE_OFFSET);
+	//SPI1_CR2 |= (1UL << SPI_CR2_RXNEIE_OFFSET); ////* TODO: Re-enable if required to be read via interrupt *////
 
 	/* Enables SPI */
 	SPI1_CR1 |= (1UL << SPI_CR1_SPE_OFFSET);
@@ -46,12 +45,57 @@ void SPI_Init()
 
 
 
-void SPI_Transmit()
+void SPI_Transmit(uint8_t Val)
 {
-
+	/* Wait until TX buffer is empty */
+	while(!(SPI1_SR & (1UL << SPI_SR_TXE_OFFSET)));
+	/* Write to SPI DR register to initiate a write operation */
+	SPI1_DR = Val; // Writes the SPI Data buffer
 }
 
-void SPI_Receive()
+uint8_t SPI_Receive(uint8_t DummyRead)
 {
+	uint32_t Pressure_Val;
 
+	if(DummyRead == 1U) // The first received data (during MOSI transfer) contains no useful data
+	{
+		/* Wait until RX buffer is empty */
+		while(!(SPI1_SR & (1UL << SPI_SR_RXNE_OFFSET)));
+		/* Read SPI DR register to clear RXNE flag as well as RX buffer */
+		Pressure_Val = SPI1_DR; // RXNE bit is automatically cleared.
+		/* Always read SPI_DR register to avoid Overrun Flag (OVR) is set */
+		return (0); // This read will be discarded since useless
+	}
+	else{
+		/* Wait until RX buffer is empty */
+		while(!(SPI1_SR & (1UL << SPI_SR_RXNE_OFFSET)));
+		/* Read SPI DR register to clear RXNE flag as well as RX buffer */
+		Pressure_Val = SPI1_DR; // Reads the SPI Data Buffer (8 MSbits are automatically forced to 0 in SPI DR). RXNE bit is automatically cleared.
+		/* Always read SPI_DR register to avoid Overrun Flag (OVR) is set */
+		return((uint8_t)Pressure_Val);
+	}
+}
+
+/* SPI Write operation to configure slave's registers */
+void SPI_Write(uint8_t Addr, uint8_t Data)
+{
+	SPI_Transmit(Addr & SPI_Write_Operation); // Send register's address, keeping MSB=0 (write operation)
+	SPI_Receive((uint8_t)1U);  // Dummy read operation (discarded) to empty RX buffer
+
+	SPI_Transmit(Data); // Data to be written in the sensor's register
+	SPI_Receive((uint8_t)1U); // Dummy read operation (discarded) to empty RX buffer
+}
+
+/* Reads data from slave */
+uint8_t SPI_Read(uint8_t SPI_Data_Read)
+{
+	uint8_t RetVal_Pressure;
+
+	SPI_Transmit(SPI_Data_Read | SPI_Read_Operation);
+	SPI_Receive((uint8_t)1U);  // Dummy read operation (discarded) to empty RX buffer
+
+	SPI_Transmit((uint8_t)Dummy_Write); // Dummy write operation just to generate clock
+	RetVal_Pressure = SPI_Receive((uint8_t)0U);
+
+	return (RetVal_Pressure);
 }

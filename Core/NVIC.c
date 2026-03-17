@@ -11,10 +11,6 @@
 #include "SPI.h"
 
 
-/****************************************************************************
-Global variables
-****************************************************************************/
-extern uint32_t *pSPI_ReadBuffer;
 
 
 void Priority_IRQ(uint8_t Irq_n, uint8_t Irq_val)
@@ -35,8 +31,8 @@ void NVIC_Init()
 	uint32_t *pISER_Addr;
 	uint8_t  ISER_AddrOffset;
 
-	/* Sensors */
-	Priority_IRQ(SPI1_IRQn, Prio_Lev_4); // 16 different priority levels are allowed by the ARM CPU. The lower the higher.
+	/* Sensors */  ////* TODO: Re-enable if required to be read via interrupt *////
+	//Priority_IRQ(SPI1_IRQn, Prio_Lev_4); // 16 different priority levels are allowed by the ARM CPU. The lower the higher.
 
 	/****** Enable IRQs in NVIC ******/
 
@@ -58,11 +54,12 @@ void TIM4_IRQHandler(void)
 }
 
 
-void SPI1_IRQHandler(void)
-{
-    if(SPI1_SR & (1UL << SPI_SR_RXNE_OFFSET))
-    {
-    	*pSPI_ReadBuffer = (0UL || SPI1_DR); // Reads the SPI Data Buffer (sets 16 MSbits to 0). RXNE bit is automatically cleared.
-    }
-
-}
+////* TODO: Re-enable if required to be read via interrupt *////
+//void SPI1_IRQHandler(void)
+//{
+//    if(SPI1_SR & (1UL << SPI_SR_RXNE_OFFSET))
+//    {
+//    	*pSPI_ReadBuffer = (0UL || SPI1_DR); // Reads the SPI Data Buffer (sets 16 MSbits to 0). RXNE bit is automatically cleared.
+//    }
+//
+//}

@@ -32,8 +32,8 @@
 /****************************************************************************
 Global variables
 ****************************************************************************/
-#define NULL         ((void *)0)
-uint32_t *pSPI_ReadBuffer = NULL;
+//#define NULL         ((void *)0)
+//uint32_t *pSPI_ReadBuffer = NULL;
 
 
 int main(void)
