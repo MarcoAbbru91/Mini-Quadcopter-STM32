@@ -94,6 +94,7 @@ DEFINES
 /* GPIOB Mode Register PB9 bits */
 #define GPIOB_MODER_9_OFFSET  (18UL) // 2 bits
 /* GPIOB Mode Register PB12 bits */
+#define GPIOB_MODER_12_OFFSET (24U) // 2 bits
 /* GPIOB Mode Register PB13 bits */
 
 /* GPIOB Mode Register PB15 bits */

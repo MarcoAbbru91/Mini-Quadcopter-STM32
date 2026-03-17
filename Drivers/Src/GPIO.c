@@ -18,14 +18,6 @@ void GPIO_Init(void)
 	/* Clear and Set Alternate Function 2 for PB6 port */
 	GPIOB_AFRL &= ~(0xFUL << GPIOB_AFRL_6_OFFSET);
 	GPIOB_AFRL |=  (0x2UL << GPIOB_AFRL_6_OFFSET);
-
-	/* CS SPI pin for the magnetometer sensor */
-	/* Clear and Set port to digital output mode */
-	GPIOB_MODER &= ~(0x3UL << GPIOB_MODER_12_OFFSET);
-	GPIOB_MODER |=  (0x1UL << GPIOB_MODER_12_OFFSET); // General Purpose Output mode
-	/* Sets speed for PC13 */
-	GPIOB_OSPEEDR |=  (0x3UL << GPIOB_OSPEEDR_12_OFFSET); // Very High Speed
-
 	/* Clear and Set port to Alternate Function mode */
 	GPIOB_MODER &= ~(0x3UL << GPIOB_MODER_7_OFFSET);
 	GPIOB_MODER |=  (0x2UL << GPIOB_MODER_7_OFFSET);
@@ -44,6 +36,14 @@ void GPIO_Init(void)
 	/* Clear and Set Alternate Function 2 for PB9 port */
 	GPIOB_AFRH &= ~(0xFUL << GPIOB_AFRH_9_OFFSET);
 	GPIOB_AFRH |=  (0x2UL << GPIOB_AFRH_9_OFFSET);
+
+	/* CS SPI pin for the magnetometer sensor */
+	/* Clear and Set port to digital output mode */
+	GPIOB_MODER &= ~(0x3UL << GPIOB_MODER_12_OFFSET);
+	GPIOB_MODER |=  (0x1UL << GPIOB_MODER_12_OFFSET); // General Purpose Output mode
+	/* Sets speed for PC13 */
+	GPIOB_OSPEEDR |=  (0x3UL << GPIOB_OSPEEDR_12_OFFSET); // Very High Speed
+
 
 	/* Enable Clock for GPIOA peripheral - Needed for SCK, MOSI, MISO SPI pins for the three sensors */
 	RCC_AHB1 |= (0x01UL << RCC_AHB1_GPIOA_EN);
