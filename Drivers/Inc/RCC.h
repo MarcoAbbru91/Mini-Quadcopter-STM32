@@ -97,7 +97,7 @@ DEFINES
 #define RCC_AHB1                (* (volatile uint32_t *)(RCC_AHB1_ENR_ADDRESS)) // typecast and dereference // @suppress("Line comments")
 /* AHB1 GPIOB Clock Enable bit */
 #define RCC_AHB1_GPIOB_EN       (1UL)
-/* AHB1 GPIOB Clock Enable bit */
+/* AHB1 GPIOA Clock Enable bit */
 #define RCC_AHB1_GPIOA_EN       (0UL)
 
 
@@ -105,7 +105,7 @@ DEFINES
 FUNCTIONS PROTOTYPES
 ****************************************************************************/
 
-/* Initialize RCC peripheral */
+/* Initialize RCC peripherals */
 void RCC_Init();
 
 #endif /* FIRMWARE_INC_RCC_H_ */
