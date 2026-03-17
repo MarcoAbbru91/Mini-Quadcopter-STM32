@@ -6,7 +6,6 @@
  */
 
 #include "GPIO.h"
-#include "RCC.h"
 
 
 void GPIO_Init(void)
@@ -19,6 +18,25 @@ void GPIO_Init(void)
 	/* Clear and Set Alternate Function 2 for PB6 port */
 	GPIOB_AFRL &= ~(0xFUL << GPIOB_AFRL_6_OFFSET);
 	GPIOB_AFRL |=  (0x2UL << GPIOB_AFRL_6_OFFSET);
+	/* Clear and Set port to Alternate Function mode */
+	GPIOB_MODER &= ~(0x3UL << GPIOB_MODER_7_OFFSET);
+	GPIOB_MODER |=  (0x2UL << GPIOB_MODER_7_OFFSET);
+	/* Clear and Set Alternate Function 2 for PB7 port */
+	GPIOB_AFRL &= ~(0xFUL << GPIOB_AFRL_7_OFFSET);
+	GPIOB_AFRL |=  (0x2UL << GPIOB_AFRL_7_OFFSET);
+	/* Clear and Set port to Alternate Function mode */
+	GPIOB_MODER &= ~(0x3UL << GPIOB_MODER_8_OFFSET);
+	GPIOB_MODER |=  (0x2UL << GPIOB_MODER_8_OFFSET);
+	/* Clear and Set Alternate Function 2 for PB8 port */
+	GPIOB_AFRH &= ~(0xFUL << GPIOB_AFRH_8_OFFSET);
+	GPIOB_AFRH |=  (0x2UL << GPIOB_AFRH_8_OFFSET);
+	/* Clear and Set port to Alternate Function mode */
+	GPIOB_MODER &= ~(0x3UL << GPIOB_MODER_9_OFFSET);
+	GPIOB_MODER |=  (0x2UL << GPIOB_MODER_9_OFFSET);
+	/* Clear and Set Alternate Function 2 for PB9 port */
+	GPIOB_AFRH &= ~(0xFUL << GPIOB_AFRH_9_OFFSET);
+	GPIOB_AFRH |=  (0x2UL << GPIOB_AFRH_9_OFFSET);
+
 	/* Enable Clock for GPIOA peripheral - Needed for SCK, MOSI, MISO SPI pins for the three sensors */
 	RCC_AHB1 |= (0x01UL << RCC_AHB1_GPIOA_EN);
 	/* Clear and Set port to Alternate Function mode 5 */

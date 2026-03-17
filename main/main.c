@@ -32,6 +32,7 @@
 /****************************************************************************
 Global variables
 ****************************************************************************/
+extern uint8_t  SysTick_1ms_flag;
 #define NULL         ((void *)0)
 uint32_t *pSPI_ReadBuffer = NULL;
 
@@ -50,7 +51,7 @@ int main(void)
 	SPI_Init();
 
 	/* NVIC initialization - Enable_Interrupts */
-	NVIC_Init();
+	NVIC_Exception_Interrupt_Init();
 
 	/* Loop forever */
 	for(;;);
