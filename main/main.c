@@ -38,9 +38,8 @@ uint32_t *pSPI_ReadBuffer = NULL;
 
 int main(void)
 {
-	/* Initialize Reset and Clock */
+	/* Initialize Reset and Clock as well as Flash Memory Interface, required for PLL */
 	RCC_Init();
-	while(!(RCC_CR & (1UL << RCC_CR_PLLRDY_OFFSET))) {}; // Wait for PLL HW to be ready
 	/* Initialize GPIOs */
 	GPIO_Init();
 	/* Initialize General-Purpose Timer */
