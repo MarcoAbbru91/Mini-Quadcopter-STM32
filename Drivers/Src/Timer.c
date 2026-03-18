@@ -5,13 +5,23 @@
  *      Author: marco91
  */
 
-#include "NVIC.h"
 #include "Timer.h"
-#include "RCC.h"
 
 
 void Timer_Init(void)
 {
+	/* SysTick initialization sequence as per Cortex Tech Ref */
+	/* SysTick Counter Reload Value */
+	SYSTICK_LOAD &= ~(0xFFFFFFFFUL);      // Keep "reserved" bit reset
+	SYSTICK_LOAD |= (0x00002904UL - 1UL); // To get Reload value of the timer equal to 1ms, considering that SysTick runs at frequency of AHB/8 (= 84MHz/8)
+	/* SysTick Counter Current Value */
+	SYSTICK_VAL  &= ~(0xFFFFFFFFUL);// Reset it
+	/* SysTick Counter Enable */
+	SYSTICK_CTRL |= (0x01UL << SYSTICK_CTRL_ENABLE_OFFSET); // Enable counter
+
+
+
+	/* Timer4 peripheral initialization */
 	/* Enable Clock for Timer4 peripheral */
 	RCC_APB1 |= (0x01UL << RCC_APB1_TIM4_EN);
 
@@ -48,9 +58,9 @@ void PWM_Init()
 	TIM4_CCMR1 &= ~(0x07UL << TIM4_CCMR1_OC1M_OFFSET);
 	TIM4_CCMR1 |=  (0x06UL << TIM4_CCMR1_OC1M_OFFSET); // PWM Mode 1
 	/* Sets Autoreload register on TIM4. DETERMINES FREQUENCY OF PWM */
-	TIM4_ARR = (799); // To have PWM of 20 KHz, considering Prescaler=0
-	/* Sets Preload value. DETERMINES DUTY CYCLE OF PWM */
-	TIM4_CCR1 = (400); // 50% Duty Cycle
+	TIM4_ARR = (4200-1); // To have PWM of 20 KHz with Clock freq of 84MHz, considering Prescaler=0
+	/* Sets Preload value for TIM4 CH1. DETERMINES DUTY CYCLE OF PWM */
+	TIM4_CCR1 = (2100); // 50% Duty Cycle
 	/* Manually set the UG bit inside the EGR register to load the "preload value" */
 	TIM4_EGR |= (0x01UL << TIM4_EGR_UG_OFFSET);
 	/* Enables/Disables TIM4 counter */

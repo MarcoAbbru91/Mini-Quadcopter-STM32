@@ -9,10 +9,27 @@
 #define FIRMWARE_INC_TIMER_H_
 
 #include <stdint.h>
+#include "NVIC.h"
+#include "RCC.h"
 
 /****************************************************************************
 DEFINES
 ****************************************************************************/
+
+/* Initialize CPU SysTick Timer */
+
+/* SysTick Timer Control and Status register base address */
+#define SYSTICK_CTRL  (* (volatile uint32_t *)(0xE000E010UL))
+/* SysTick Timer Control and Status register Counter Enable offset */
+#define SYSTICK_CTRL_ENABLE_OFFSET  (0UL)
+/* SysTick Timer Control and Status register Systick Exception Request Enable offset */
+#define SYSTICK_CTRL_TICKINT_OFFSET  (1UL)
+/* SysTick Timer Reload value register base address */
+#define SYSTICK_LOAD  (* (volatile uint32_t *)(0xE000E014UL))
+/* SysTick Timer Value register base address */
+#define SYSTICK_VAL   (* (volatile uint32_t *)(0xE000E018UL))
+
+
 
 /* Initialize Timer4 peripheral in Output Compare mode.
    Initializes as well the PWM mode for this timer. */
@@ -102,10 +119,10 @@ DEFINES
 FUNCTIONS PROTOTYPES
 ****************************************************************************/
 
-/* Initialize (General-Purpose) Timer peripheral */
+/* Initialize CPU SysTick and General-Purpose Timer peripheral */
 void Timer_Init();
 
-/* Initialize PWM peripheral */
+/* Initialize PWM */
 void PWM_Init();
 
 #endif /* FIRMWARE_INC_TIMER_H_ */

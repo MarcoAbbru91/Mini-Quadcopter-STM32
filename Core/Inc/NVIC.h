@@ -13,7 +13,9 @@
 
 
 /* Cortex-M4 Processor Exception's and Interrupt's IRQs */
+#define TIM4_IRQn 30U // TIM4 global Interrupt - derived from "Vector table for STM32F401xB/CSTM32F401xD/E"
 #define SPI1_IRQn 35U // SPI1 global Interrupt
+#define SPI2_IRQn 36U // SPI2 global Interrupt
 
 
 #define Prio_Lev_0   0x00U
@@ -34,13 +36,13 @@
 #define Prio_Lev_15  0xF0U
 
 
-uint32_t *pNVIC_ISER_BaseAddr = (uint32_t *)0xE000E200; // Interrupt Set-Enable Register base address
-uint32_t *pNVIC_IPR_BaseAddr  = (uint32_t *)0xE000E400; // Interrupt Priority Register base address
+#define NVIC_ISER_BASEADDR  ((volatile uint32_t *)(0xE000E200)) // Interrupt Set-Enable Register base address
+#define NVIC_IPR_BASEADDR   ((volatile uint32_t *)(0xE000E400)) // Interrupt Priority Register base address
 
 
 void Priority_IRQ(uint8_t Irq_n, uint8_t Irq_val);
 
-void NVIC_Init();
+void NVIC_Exception_Interrupt_Init();
 
 
 #endif /* NVIC_H_ */
