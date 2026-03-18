@@ -16,20 +16,17 @@ Committed on main branch
 - [x] GPIO initial implementation
 - [x] Clock source as PLL at 84 MHz
 - [x] Extend implementation for TIM4 and PWM. SysTick implementation
+- [x] Pressure, Magnetic and Accelerometer/IMU sensors firmware implementation (with related SPI and GPIO configuration)
 
 In Progress
-- [ ] Pressure, Magnetic and Accelerometer/IMU sensors firmware implementation (with related SPI and GPIO configuration)
 - [ ] SPI code fixes
-- [ ] Make PWM have variable frequency (runtime duty control below)
-- [ ] Switch to center-aligned PWM (better for motors) 
-
-Upcoming / In pipeline
-- [ ] Mutex/semaphore implementation since SPI is shared by multiple tasks 
 - [ ] BLE module configuration
 - [ ] Custome makefile (indipendent from STM32CubeIDE internal makefile)
+
+Upcoming / In pipeline
+- [ ] Make PWM have variable frequency (runtime duty control below)
+- [ ] Switch to center-aligned PWM (better for motors) 
+- [ ] Mutex/semaphore implementation since SPI is shared by multiple tasks 
 - [ ] PID controllers implementation
 - [ ] Integration of Firmware and control algorithm
-
-Future ToDos for improvements
-- [ ] Implement LQR as control algorithm
 
