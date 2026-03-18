@@ -35,7 +35,7 @@ void RCC_Init()
 
 	/* Clears and sets PLL CFGR PPRE1 bits */
 	RCC_CFGR &= ~(7UL << RCC_CFGR_PPRE1_OFFSET); // Clear bits
-	RCC_CFGR |=  (4UL << RCC_CFGR_PPRE1_OFFSET); // Selects AHB clock divided by 2 -> 42MHz
+	RCC_CFGR |=  (4UL << RCC_CFGR_PPRE1_OFFSET); // AHB clock divided by 2 -> 42MHz
 	/* Clears and sets PLL CFGR SW bits */
 	RCC_CFGR &= ~(3UL << RCC_CFGR_SW_OFFSET); // Clear bits
 	RCC_CFGR |=  (2UL << RCC_CFGR_SW_OFFSET); // Selects PLL as system clock

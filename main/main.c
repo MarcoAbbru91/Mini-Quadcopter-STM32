@@ -22,6 +22,9 @@
 #include "GPIO.h"
 #include "Timer.h"
 #include "SPI.h"
+#include "LPS22HH.h"
+#include "LIS2MDL.h"
+#include "LSM6DSL.h"
 
 
 #if !defined(__SOFT_FP__) && defined(__ARM_FP)
@@ -33,12 +36,16 @@
 Global variables
 ****************************************************************************/
 extern uint8_t  SysTick_1ms_flag;
-#define NULL         ((void *)0)
-uint32_t *pSPI_ReadBuffer = NULL;
+
+
 
 
 int main(void)
 {
+	uint8_t Counter100ms = 0U; // To read pressure sensor every 100ms
+	uint8_t Counter20ms  = 0U; // To read magnetic field information every 20ms
+	uint8_t Counter2ms  = 0U; // To read magnetic field information every 2ms
+
 	/* Initialize Reset and Clock as well as Flash Memory Interface, required for PLL */
 	RCC_Init();
 	/* Initialize GPIOs */
@@ -50,9 +57,40 @@ int main(void)
 
 	SPI_Init();
 
+	LPS22HH_Pressure_Init();
+
+	LIS2MDL_Magnetom_Init();
+
+	LSM6DSL_Imu_Init();
+
 	/* NVIC initialization - Enable_Interrupts */
 	NVIC_Exception_Interrupt_Init();
 
 	/* Loop forever */
-	for(;;);
+	while(1)
+	{
+		if(SysTick_1ms_flag)
+		{
+			SysTick_1ms_flag = 0U; // Reset 1ms Exception flag
+			Counter100ms += 1U;
+			Counter20ms  += 1U;
+			Counter2ms   += 1U;
+			if(Counter2ms >= 2U) // Read pressure sensor only every 2ms
+			{
+				LSM6DSL_Imu_Task();
+				Counter2ms = 0U;
+			}
+		  /*if(Counter100ms >= 100U) // Read pressure sensor only every 100ms
+			{
+				LPS22HH_Pressure_Task();
+				Counter100ms = 0U;
+			}
+			if(Counter20ms >= 20U) // Read pressure sensor only every 20ms
+			{
+				LIS2MDL_Magnetom_Task();
+				Counter20ms = 0U;
+			}*/
+		}
+
+	}
 }

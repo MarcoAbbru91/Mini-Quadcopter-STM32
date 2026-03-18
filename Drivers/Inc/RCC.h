@@ -95,10 +95,12 @@ DEFINES
 /* AHB1 Clock Enable Register address */
 #define RCC_AHB1_ENR_ADDRESS    (RCC_BASE_ADDRESS + RCC_AHB1_ENR_OFFSET)
 #define RCC_AHB1                (* (volatile uint32_t *)(RCC_AHB1_ENR_ADDRESS)) // typecast and dereference // @suppress("Line comments")
-/* AHB1 GPIOB Clock Enable bit */
-#define RCC_AHB1_GPIOB_EN       (1UL)
 /* AHB1 GPIOA Clock Enable bit */
 #define RCC_AHB1_GPIOA_EN       (0UL)
+/* AHB1 GPIOB Clock Enable bit */
+#define RCC_AHB1_GPIOB_EN       (1UL)
+/* AHB1 GPIOC Clock Enable bit */
+#define RCC_AHB1_GPIOC_EN       (2UL)
 
 
 /****************************************************************************
