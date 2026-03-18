@@ -81,10 +81,23 @@ DEFINES
 #define GPIOB_MODER_OFFSET         (0UL) /* GPIOB Mode Register address */
 #define GPIOB_MODER_ADDRESS        (GPIOB_BASE_ADDRESS + GPIOB_MODER_OFFSET)
 #define GPIOB_MODER                (* (volatile uint32_t *)(GPIOB_MODER_ADDRESS)) // typecast and dereference
+/* GPIOB Mode Register PB0 bits */
+
+/* GPIOB Mode Register PB2 bits */
+
 /* GPIOB Mode Register PB6 bits */
 #define GPIOB_MODER_6_OFFSET  (12UL) // 2 bits
+/* GPIOB Mode Register PB7 bits */
+#define GPIOB_MODER_7_OFFSET  (14UL) // 2 bits
+/* GPIOB Mode Register PB8 bits */
+#define GPIOB_MODER_8_OFFSET  (16UL) // 2 bits
+/* GPIOB Mode Register PB9 bits */
+#define GPIOB_MODER_9_OFFSET  (18UL) // 2 bits
 /* GPIOB Mode Register PB12 bits */
-#define GPIOB_MODER_12_OFFSET (24U) // 2 bits
+/* GPIOB Mode Register PB13 bits */
+
+/* GPIOB Mode Register PB15 bits */
+
 
 /* GPIOB AFRL - Alternate Function Low Register offset */
 #define GPIOB_AFRL_OFFSET         (0x20UL) /* GPIOB Alternate Function Register address */
@@ -92,6 +105,17 @@ DEFINES
 #define GPIOB_AFRL                (* (volatile uint32_t *)(GPIOB_AFRL_ADDRESS)) // typecast and dereference
 /* GPIOB Alternate Function Register PB6 offset (AFRL contains bits from 0 to 7, of port X) */
 #define GPIOB_AFRL_6_OFFSET  (24UL) // 4 bits
+/* GPIOB Alternate Function Register PB7 offset (AFRL contains bits from 0 to 7, of port X) */
+#define GPIOB_AFRL_7_OFFSET  (28UL) // 4 bits
+
+/* GPIOB AFRH - Alternate Function High Register offset */
+#define GPIOB_AFRH_OFFSET         (0x24UL) /* GPIOB Alternate Function Register address */
+#define GPIOB_AFRH_ADDRESS        (GPIOB_BASE_ADDRESS + GPIOB_AFRH_OFFSET)
+#define GPIOB_AFRH                (* (volatile uint32_t *)(GPIOB_AFRH_ADDRESS)) // typecast and dereference
+/* GPIOB Alternate Function Register PB8 offset (AFRH contains bits from 8 to 15, of port X) */
+#define GPIOB_AFRH_8_OFFSET  (0UL) // 4 bits
+/* GPIOB Alternate Function Register PB9 offset (AFRH contains bits from 8 to 15, of port X) */
+#define GPIOB_AFRH_9_OFFSET  (4UL) // 4 bits
 
 
 /* GPIOB OSPEEDR - Output Speed Register offset */
