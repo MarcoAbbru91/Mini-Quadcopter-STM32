@@ -17,11 +17,11 @@ Committed on main branch
 - [x] Clock source as PLL at 84 MHz
 - [x] Extend implementation for TIM4 and PWM. SysTick implementation
 - [x] Pressure, Magnetic and Accelerometer/IMU sensors firmware implementation (with related SPI and GPIO configuration)
+- [x] SPI code fixes
 
 In Progress
-- [ ] SPI code fixes
 - [ ] BLE module configuration
-- [ ] Custome makefile (indipendent from STM32CubeIDE internal makefile)
+- [ ] Custom makefile (indipendent from STM32CubeIDE internal makefile)
 
 Upcoming / In pipeline
 - [ ] Make PWM have variable frequency (runtime duty control below)
