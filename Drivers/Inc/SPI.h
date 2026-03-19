@@ -68,10 +68,12 @@ DEFINES
 #define SPI1_SR_OFFSET         (0x08UL)/* SPI Status Register address */
 #define SPI1_SR_BASE_ADDRESS   (SPI1_BASE_ADDRESS + SPI1_SR_OFFSET)
 #define SPI1_SR           (* (volatile uint32_t *)(SPI1_SR_BASE_ADDRESS)) // typecast and dereference
-/* SPI Status Register TXE Register offset */
-#define SPI_SR_TXE_OFFSET   (1UL)
 /* SPI Status Register RXNE Register offset */
 #define SPI_SR_RXNE_OFFSET  (0UL)
+/* SPI Status Register TXE Register offset */
+#define SPI_SR_TXE_OFFSET   (1UL)
+/* SPI Status Register Busy flag Register offset */
+#define SPI_SR_BSY_OFFSET   (7UL)
 
 
 /* SPI DR - Data Register */

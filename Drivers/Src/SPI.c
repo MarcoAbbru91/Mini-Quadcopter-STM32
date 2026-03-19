@@ -22,7 +22,7 @@ void SPI_Init()
 	SPI1_CR1 |= (1UL << SPI_CR1_MSTR_OFFSET);
 	/* Clears and sets SPI Baud Rate */
 	SPI1_CR1 &= ~(7UL << SPI_CR1_BR_OFFSET); // Clear 3 bits
-	SPI1_CR1 |= (2UL << SPI_CR1_BR_OFFSET); // SPI Baud Rate reduced to (Clock Freq)/8
+	SPI1_CR1 |= (3UL << SPI_CR1_BR_OFFSET); // SPI Baud Rate reduced to (Clock Freq)/16 (to have SPI clock freq lower than its maximum, i.e. 10 MHz)
 	/* Clears/sets SPI LSB/MSB first */
 	SPI1_CR1 &= ~(1UL << SPI_CR1_LSBFIRST_OFFSET); // MSB first
 	/* SPI Software SSN Management */
@@ -51,18 +51,20 @@ void SPI_Transmit(uint8_t Val)
 	while(!(SPI1_SR & (1UL << SPI_SR_TXE_OFFSET)));
 	/* Write to SPI DR register to initiate a write operation */
 	SPI1_DR = Val; // Writes the SPI Data buffer
+
+	while(SPI1_SR & (1UL << SPI_SR_BSY_OFFSET));
 }
 
 uint8_t SPI_Receive(uint8_t DummyRead)
 {
-	uint32_t Pressure_Val;
+	uint8_t Pressure_Val;
 
 	if(DummyRead == 1U) // The first received data (during MOSI transfer) contains no useful data
 	{
 		/* Wait until RX buffer is empty */
 		while(!(SPI1_SR & (1UL << SPI_SR_RXNE_OFFSET)));
 		/* Read SPI DR register to clear RXNE flag as well as RX buffer */
-		Pressure_Val = SPI1_DR; // RXNE bit is automatically cleared.
+		Pressure_Val = (uint8_t)SPI1_DR; // RXNE bit is automatically cleared.
 		/* Always read SPI_DR register to avoid Overrun Flag (OVR) is set */
 		return (0); // This read will be discarded since useless
 	}
@@ -70,9 +72,9 @@ uint8_t SPI_Receive(uint8_t DummyRead)
 		/* Wait until RX buffer is empty */
 		while(!(SPI1_SR & (1UL << SPI_SR_RXNE_OFFSET)));
 		/* Read SPI DR register to clear RXNE flag as well as RX buffer */
-		Pressure_Val = SPI1_DR; // Reads the SPI Data Buffer (8 MSbits are automatically forced to 0 in SPI DR). RXNE bit is automatically cleared.
+		Pressure_Val = (uint8_t)SPI1_DR; // Reads the SPI Data Buffer (8 MSbits are automatically forced to 0 in SPI DR). RXNE bit is automatically cleared.
 		/* Always read SPI_DR register to avoid Overrun Flag (OVR) is set */
-		return((uint8_t)Pressure_Val);
+		return(Pressure_Val);
 	}
 }
 
