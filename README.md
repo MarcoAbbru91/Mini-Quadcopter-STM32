@@ -1,32 +1,27 @@
 # Mini-quadcopter with STM32
-Mini quadcopter with STM32 microcontroller, featuring bare-metal firmware in C-code (no HAL, no libraries - direct register programming) and control algorithm with Matlab/Simulink.
+Mini quadcopter with STM32 microcontroller, featuring fully bare-metal firmware in C-code (no HAL, no libraries - direct register programming) and control algorithm developed with Matlab/Simulink.
 
 🚧 Project Status: Work in Progress
 
-Initial analysis and setup
-- [x] Hardware platform analysis
-- [x] Bare-metal STM32 firmware structure
-- [x] Quadcopter plant model analysis
-
 Committed on main branch
-- [x] Clock and Reset (RCC) initial implementation (HSI Clock)
-- [x] General-Purpose Timer initial implementation (1 Channel on TIM4)
-- [x] PWM control on TIM4 channel
-- [x] SPI driver initial implementation
-- [x] GPIO initial implementation
-- [x] Clock source as PLL at 84 MHz
-- [x] Extend implementation for TIM4 and PWM. SysTick implementation
-- [x] Pressure, Magnetic and Accelerometer/IMU sensors firmware implementation (with related SPI and GPIO configuration)
-- [x] SPI code fixes
+- [x] Initial implementation of:
+      - Clock and Reset (RCC) (HSI Clock)
+      - General-Purpose Timer (1 Channel on TIM4)
+      - PWM control on TIM4 channel
+      - SPI driver
+      - GPIOs
+- [x] Clock source as PLL at 84 MHz.
+- [x] SysTick implementation. Extend implementation for TIM4 and PWM.
+- [x] Pressure, Magnetic and Accelerometer/IMU sensors firmware implementation (with related SPI and GPIO configuration).
 
 In Progress
 - [ ] BLE module configuration
 - [ ] Custom makefile (indipendent from STM32CubeIDE internal makefile)
+- [ ] PID controllers implementation and tuning
 
 Upcoming / In pipeline
-- [ ] Make PWM have variable frequency (runtime duty control below)
-- [ ] Switch to center-aligned PWM (better for motors) 
-- [ ] Mutex/semaphore implementation since SPI is shared by multiple tasks 
-- [ ] PID controllers implementation
-- [ ] Integration of Firmware and control algorithm
+- [ ] Make PWM have variable frequency (runtime duty cycle control)
+- [ ] Switch to center-aligned PWM
+- [ ] Mutex/semaphore implementation (SPI is shared by multiple tasks)
+- [ ] Integration of firmware and control algorithm
 
