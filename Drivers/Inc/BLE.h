@@ -25,22 +25,33 @@
 #define BLE_H
 
 #include <stdint.h>
-#include <stdbool.h>
+#include "GPIO.h"
+#include "Timer.h"
+#include "BLE_Appl.h"
 
-/* =========================
- * CONFIGURATION
- * ========================= */
 
-/* Maximum size of SPI buffer (must cover largest BLE packet) */
+/****************************************************************************
+DEFINES
+****************************************************************************/
+
+/* Maximum size of SPI buffer (it must cover the largest BLE packet) */
 #define BLE_MAX_BUFFER 128
 
-/* =========================
- * BLE STATE MACHINE
- * ========================= */
 
-/**
- * @brief Internal BLE state
- */
+/* SPI CS Pin for BLE module */
+#define BLE_CS_HIGH()  (GPIOB_BSRR |= (1UL << GPIOB_BSRR_BS_0_OFFSET))/* Set CS pin high */
+#define BLE_CS_LOW()   (GPIOB_BSRR |= (1UL << GPIOB_BSRR_BR_0_OFFSET))/* Set CS pin low */
+
+/* Control bytes for BlueNRG SPI */
+#define BLE_SPI_WRITE 0x0A
+#define BLE_SPI_READ  0x0B
+
+
+/****************************************************************************
+GLOBAL VARIABLES
+****************************************************************************/
+
+/* Internal BLE state machine */
 typedef enum
 {
 	BLE_STATE_IDLE = 0, // Not initialized
@@ -48,62 +59,29 @@ typedef enum
 	BLE_STATE_CONNECTED // Connected to central device
 } BLE_State_t;
 
-/* =========================
- * PUBLIC API
- * ========================= */
+/* SPI buffers */
+uint8_t SPI_TX[BLE_MAX_BUFFER];
+uint8_t SPI_RX[BLE_MAX_BUFFER];
 
-/**
- * @brief Initialize BLE module
- *
- * Performs:
- *  - Reset
- *  - Stack init (GATT + GAP)
- *  - Service creation
- *  - Start advertising
- */
+
+
+
+/****************************************************************************
+FUNCTIONS PROTOTYPES
+****************************************************************************/
+
+/* IRQ handler called by external interrupt (EXTI) */
+void BLE_EXTI_IRQHandler(void);
+
+/* BLE module initialization */
 void BLE_Init(void);
 
-/**
- * @brief Process BLE events
- *
- * Must be called regularly (main loop or RTOS task).
- * Handles:
- *  - Reading events from SPI
- *  - Parsing events
- *  - Triggering callbacks
- */
+uint16_t BLE_SPI_Read(uint8_t *buffer);
+
+void BLE_SPI_Write(uint8_t *data, uint16_t len);
+
+/* Process regular BLE events (events from SPI, parsing of events, triggering of callbacks) */
 void BLE_Process(void);
 
-/**
- * @brief Send telemetry data via notification
- *
- * @param data Pointer to payload
- * @param len  Payload length
- *
- * Only works when connected.
- */
-void BLE_SendTelemetry(uint8_t *data, uint8_t len);
-
-/* =========================
- * CALLBACKS (APPLICATION)
- * ========================= */
-
-/**
- * @brief Called when BLE connection is established
- */
-void BLE_OnConnected(void);
-
-/**
- * @brief Called when BLE is disconnected
- */
-void BLE_OnDisconnected(void);
-
-/**
- * @brief Called when data is received from central (phone)
- *
- * @param data Pointer to received payload
- * @param len  Payload length
- */
-void BLE_OnDataReceived(uint8_t *data, uint8_t len);
 
 #endif

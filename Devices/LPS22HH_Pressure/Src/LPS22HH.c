@@ -15,19 +15,19 @@ void LPS22HH_Pressure_Init()
 	Pressure_hPa_raw = 0UL;
 
 	LPS22HH_CS_LOW(); // Set Control Select pin high to start a transaction
-	SPI_Write(CTRL_REG1, CTRL_REG1_VAL); // Configure register REG1
+	SPI_FD_Write(CTRL_REG1, CTRL_REG1_VAL); // Configure register REG1
 	LPS22HH_CS_HIGH(); // Set Control Select pin low to finish a transaction
 
 	LPS22HH_CS_LOW(); // Set Control Select pin high to start a transaction
-	SPI_Write(CTRL_REG2, CTRL_REG2_VAL); // Configure register REG2
+	SPI_FD_Write(CTRL_REG2, CTRL_REG2_VAL); // Configure register REG2
 	LPS22HH_CS_HIGH(); // Set Control Select pin low to finish a transaction
 
 	LPS22HH_CS_LOW(); // Set Control Select pin high to start a transaction
-	SPI_Write(CTRL_REG3, CTRL_REG3_VAL); // Configure register REG3
+	SPI_FD_Write(CTRL_REG3, CTRL_REG3_VAL); // Configure register REG3
 	LPS22HH_CS_HIGH(); // Set Control Select pin low to finish a transaction
 
 	LPS22HH_CS_LOW(); // Set Control Select pin high to start a transaction
-	SPI_Write(FIFO_CTRL, FIFO_CTRL_VAL); // Configure FIFO register
+	SPI_FD_Write(FIFO_CTRL, FIFO_CTRL_VAL); // Configure FIFO register
 	LPS22HH_CS_HIGH(); // Set Control Select pin low to finish a transaction
 }
 
@@ -39,9 +39,9 @@ void LPS22HH_Pressure_Task()
 	LPS22HH_CS_LOW(); // Set Control Select pin high to start a transaction
 
 	/* Currently the multi-byte read (auto-increment) feature is not used. Possible ToDo */
-	Pressure_Val[0] = SPI_Read((uint8_t)PRESSURE_OUT_XL); // Read first byte of the 3-bytes representing the pressure value
-	Pressure_Val[1] = SPI_Read((uint8_t)PRESSURE_OUT_L); // Read second byte of the 3-bytes representing the pressure value
-	Pressure_Val[2] = SPI_Read((uint8_t)PRESSURE_OUT_H); // Read third byte of the 3-bytes representing the pressure value
+	Pressure_Val[0] = SPI_FD_Read((uint8_t)PRESSURE_OUT_XL); // Read first byte of the 3-bytes representing the pressure value
+	Pressure_Val[1] = SPI_FD_Read((uint8_t)PRESSURE_OUT_L); // Read second byte of the 3-bytes representing the pressure value
+	Pressure_Val[2] = SPI_FD_Read((uint8_t)PRESSURE_OUT_H); // Read third byte of the 3-bytes representing the pressure value
 
 	LPS22HH_CS_HIGH(); // Set Control Select pin low to finish a transaction
 
