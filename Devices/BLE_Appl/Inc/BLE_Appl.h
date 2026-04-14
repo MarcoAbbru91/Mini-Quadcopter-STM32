@@ -44,4 +44,14 @@ typedef struct
 } BLE_PIDCmd_t;
 
 
+
+/* Called when BLE connection is established */
+void BLE_OnConnected(void);
+/* Called when BLE is disconnected */
+void BLE_OnDisconnected(void);
+/* Called when the data is received from the phone */
+void BLE_OnDataReceived(uint8_t *data, uint8_t len);
+
+
+
 #endif /* BLE_APPL_H_ */
