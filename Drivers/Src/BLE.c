@@ -213,10 +213,9 @@ void BLE_Process(void)
 	BLE_irq_flag = false;
 
 	/* Keep reading until IRQ is High, as per information from datasheet */
-	while (BLE_IRQ_Read())
+	while (BLE_IRQ_ReadGPIO())
 	{
 		uint8_t buffer[BLE_MAX_BUFFER];
-
 		uint16_t len = BLE_SPI_Read(buffer);
 
 		if (len > 0)
