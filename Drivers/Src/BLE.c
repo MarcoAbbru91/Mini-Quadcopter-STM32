@@ -8,14 +8,11 @@
 #include "BLE.h"
 
 
-
+/* IRQ flag set from interrupt */
+volatile uint32_t BLE_IRQ_Counter = 0;
 
 /* Current BLE state */
 static BLE_State_t BLE_State = BLE_STATE_IDLE;
-
-/* IRQ flag set from interrupt */
-static volatile bool BLE_irq_flag = false;
-
 /* Connection handle (assigned after connection) */
 static uint16_t Connection_Handle = 0;
 
@@ -24,7 +21,7 @@ static uint16_t Connection_Handle = 0;
 /* IRQ handler called by external interrupt (EXTI) */
 void BLE_EXTI_IRQHandler(void)
 {
-	BLE_irq_flag = true;
+	BLE_IRQ_Counter++;
 }
 
 /* SPI Write (MCU -> BLE) */
@@ -208,10 +205,6 @@ static void BLE_ParseEvent(uint8_t *buffer, uint16_t len)
 /* Process function called inside infinite while loop */
 void BLE_Process(void)
 {
-	if (!BLE_irq_flag) return;
-
-	BLE_irq_flag = false;
-
 	/* Keep reading until IRQ is High, as per information from datasheet */
 	while (BLE_IRQ_ReadGPIO())
 	{

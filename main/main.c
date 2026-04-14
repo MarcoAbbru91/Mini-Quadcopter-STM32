@@ -17,11 +17,13 @@
  ******************************************************************************
  */
 
-#include "NVIC.h"
+#include "NVIC_EXTI.h"
+#include "SysCfg.h"
 #include "RCC.h"
 #include "GPIO.h"
 #include "Timer.h"
 #include "SPI.h"
+#include "BLE.h"
 #include "LPS22HH.h"
 #include "LIS2MDL.h"
 #include "LSM6DSL.h"
@@ -35,16 +37,15 @@
 /****************************************************************************
 Global variables
 ****************************************************************************/
-extern uint8_t  SysTick_1ms_flag;
-
+extern volatile uint32_t SysTick_Counter;
+extern volatile uint32_t BLE_IRQ_Counter;
 
 
 
 int main(void)
 {
-	uint8_t Counter100ms = 0U; // To read pressure sensor every 100ms
-	uint8_t Counter20ms  = 0U; // To read magnetic field information every 20ms
-	uint8_t Counter2ms  = 0U; // To read magnetic field information every 2ms
+	static uint32_t SysTick_Last    = 0;
+	static uint32_t SysTick_Last5ms = 0;
 
 	/* Initialize Reset and Clock as well as Flash Memory Interface, required for PLL */
 	RCC_Init();
@@ -54,7 +55,7 @@ int main(void)
 	Timer_Init();
 	/* Initialize PWM-related registers */
 	PWM_Init();
-
+	/* Initialize SPI */
 	SPI_Init();
 
 	LPS22HH_Pressure_Init();
@@ -63,34 +64,29 @@ int main(void)
 
 	LSM6DSL_Imu_Init();
 
-	/* NVIC initialization - Enable_Interrupts */
-	NVIC_Exception_Interrupt_Init();
+	BLE_Init();
+	/* Initialize System Configuration Controller */
+	SysCfg_Init();
+	/* NVIC and EXTI initialization - Enable_Interrupts */
+	NVIC_EXTI_Init();
 
 	/* Loop forever */
 	while(1)
 	{
-		if(SysTick_1ms_flag)
+		if(SysTick_Counter != SysTick_Last)
 		{
-			SysTick_1ms_flag = 0U; // Reset 1ms Exception flag
-			Counter100ms += 1U;
-			Counter20ms  += 1U;
-			Counter2ms   += 1U;
-			if(Counter2ms >= 2U) // Read pressure sensor only every 2ms
-			{
-				LSM6DSL_Imu_Task();
-				Counter2ms = 0U;
-			}
-		  /*if(Counter100ms >= 100U) // Read pressure sensor only every 100ms
-			{
-				LPS22HH_Pressure_Task();
-				Counter100ms = 0U;
-			}
-			if(Counter20ms >= 20U) // Read pressure sensor only every 20ms
-			{
-				LIS2MDL_Magnetom_Task();
-				Counter20ms = 0U;
-			}*/
-		}
+			SysTick_Last = SysTick_Counter;
+			LSM6DSL_Imu_Task(); // 1ms task
 
+			if((SysTick_Counter - SysTick_Last5ms) >= 5) // Check if 5ms are elapsed
+			{
+				SysTick_Last5ms = SysTick_Counter;
+				while(BLE_IRQ_Counter > 0)
+				{
+					BLE_IRQ_Counter--;
+					BLE_Process(); // 5ms task
+				}
+			}
+		}
 	}
 }
