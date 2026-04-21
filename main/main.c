@@ -17,14 +17,14 @@
  ******************************************************************************
  */
 
-#include "NVIC.h"
+#include "NVIC_EXTI.h"
+#include "SysCfg.h"
 #include "RCC.h"
 #include "GPIO.h"
 #include "Timer.h"
 #include "SPI.h"
 #include "LPS22HH.h"
-#include "LIS2MDL.h"
-#include "LSM6DSL.h"
+#include "LSM6DSR.h"
 
 
 #if !defined(__SOFT_FP__) && defined(__ARM_FP)
@@ -35,61 +35,71 @@
 /****************************************************************************
 Global variables
 ****************************************************************************/
-extern uint8_t  SysTick_1ms_flag;
+extern volatile uint32_t SysTick_Counter;
 
 
 
 
 int main(void)
 {
-	uint8_t Counter100ms = 0U; // To read pressure sensor every 100ms
-	uint8_t Counter20ms  = 0U; // To read magnetic field information every 20ms
-	uint8_t Counter2ms  = 0U; // To read magnetic field information every 2ms
+	static uint32_t SysTick_Last     = 0;
+	static uint32_t SysTick_Last5ms  = 0;
+	static uint32_t SysTick_Last50ms = 0;
+	//float PWM_Mot1 = 0.0f;
+	//float PWM_Mot2 = 0.0f;
+	//float PWM_Mot3 = 0.0f;
+	//float PWM_Mot4 = 0.0f;
 
 	/* Initialize Reset and Clock as well as Flash Memory Interface, required for PLL */
 	RCC_Init();
-	/* Initialize GPIOs */
-	GPIO_Init();
+	/* NVIC and EXTI initialization - Enable_Interrupts */
+	NVIC_EXTI_Init();
+	/* Initialize System Configuration Controller */
+	SysCfg_Init();
 	/* Initialize General-Purpose Timer */
 	Timer_Init();
+	/* Initialize GPIOs */
+	GPIO_Init();
 	/* Initialize PWM-related registers */
 	PWM_Init();
-
+	/* Initialize SPI */
 	SPI_Init();
 
 	LPS22HH_Pressure_Init();
 
-	LIS2MDL_Magnetom_Init();
+	LSM6DSR_Imu_Init();
 
-	LSM6DSL_Imu_Init();
 
-	/* NVIC initialization - Enable_Interrupts */
-	NVIC_Exception_Interrupt_Init();
+
+
+	/****** TMP code for debugging purposes below to be removed ******/
+	//volatile uint8_t who;
+
+	//LSM6DSR_CS_LOW();
+	//SPI2_FlushRX();
+	//who = SPI2_Read(0x0F);
+	//LSM6DSR_CS_HIGH();
+
+	//LPS22HH_CS_LOW();
+	//SPI2_FlushRX();
+	//who = SPI2_Read(0x0F);
+	//LPS22HH_CS_HIGH();
+	/****** TMP code for debugging purposes above to be removed ******/
 
 	/* Loop forever */
 	while(1)
 	{
-		if(SysTick_1ms_flag)
+		if(SysTick_Counter != SysTick_Last)
 		{
-			SysTick_1ms_flag = 0U; // Reset 1ms Exception flag
-			Counter100ms += 1U;
-			Counter20ms  += 1U;
-			Counter2ms   += 1U;
-			if(Counter2ms >= 2U) // Read pressure sensor only every 2ms
+			SysTick_Last = SysTick_Counter;
+			LSM6DSR_Imu_Task(); // 1ms task
+
+			if((SysTick_Counter - SysTick_Last50ms) >= 50) // Check if 50ms are elapsed
 			{
-				LSM6DSL_Imu_Task();
-				Counter2ms = 0U;
+				SysTick_Last50ms = SysTick_Counter;
+				LPS22HH_Pressure_Task(); // 50ms task
 			}
-		  /*if(Counter100ms >= 100U) // Read pressure sensor only every 100ms
-			{
-				LPS22HH_Pressure_Task();
-				Counter100ms = 0U;
-			}
-			if(Counter20ms >= 20U) // Read pressure sensor only every 20ms
-			{
-				LIS2MDL_Magnetom_Task();
-				Counter20ms = 0U;
-			}*/
+
 		}
 
 	}
