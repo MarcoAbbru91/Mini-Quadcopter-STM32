@@ -8,8 +8,8 @@
 #ifndef FIRMWARE_INC_TIMER_H_
 #define FIRMWARE_INC_TIMER_H_
 
+#include <NVIC_EXTI.h>
 #include <stdint.h>
-#include "NVIC.h"
 #include "RCC.h"
 
 /****************************************************************************
@@ -164,9 +164,16 @@ DEFINES
 #define TIM4_CCR4_BASE_ADDRESS  (TIM4_BASE_ADDRESS + TIM4_CCR4_OFFSET) // typecast and dereference
 #define TIM4_CCR4          (* (volatile uint32_t *)(TIM4_CCR4_BASE_ADDRESS)) // typecast and dereference
 
+
+
+
+
 /****************************************************************************
 FUNCTIONS PROTOTYPES
 ****************************************************************************/
+
+/* Create delay in milliseconds */
+void Delay_ms(uint32_t ms);
 
 /* Initialize CPU SysTick and General-Purpose Timer peripheral */
 void Timer_Init();

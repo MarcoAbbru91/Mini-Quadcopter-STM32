@@ -107,7 +107,7 @@ DEFINES
 FUNCTIONS PROTOTYPES
 ****************************************************************************/
 
-/* Initialize RCC peripherals */
+/* Initialize RCC peripheral */
 void RCC_Init();
 
 #endif /* FIRMWARE_INC_RCC_H_ */
