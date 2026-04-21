@@ -14,7 +14,12 @@ void RCC_Init()
 	Flash_Mem_IF_Init();
 
 	/* Clock Source configuration */
-#if CLOCK_SOURCE == PLL_CLOCK
+//#if CLOCK_SOURCE == PLL_CLOCK
+	RCC_CR |= (1UL << 0);
+	while (!(RCC_CR & (1UL << 1)));
+
+	RCC_CFGR &= ~(0xFU << 4UL);
+
 	/* Clears and sets PLLM register */
 	RCC_PLLCFGR &= ~(0x3FU << RCC_PLLCFGR_PLLM_OFFSET); // Clears 6 bits
 	RCC_PLLCFGR |= (16U << RCC_PLLCFGR_PLLM_OFFSET); // to get VCOin = HSI / PLLM = 1MHz
@@ -41,12 +46,12 @@ void RCC_Init()
 	RCC_CFGR |=  (2UL << RCC_CFGR_SW_OFFSET); // Selects PLL as system clock
 	while((RCC_CFGR & (3 << RCC_CFGR_SWS_OFFSET)) != (2 << RCC_CFGR_SWS_OFFSET));
 
-#elif CLOCK_SOURCE == HSI_CLOCK
+//#elif CLOCK_SOURCE == HSI_CLOCK
 /* The HSI configuration is actually not required since the HSI clock is automatically selected after system reset */
 	/* Initialize MCO1 (Microcontroller Clock Output) */
-	RCC_CFGR &= ~(0x03UL << RCC_CFGR_MCO1_OFFSET); // Clear bits 21 and 22 to select HSI clock source
+//	RCC_CFGR &= ~(0x03UL << RCC_CFGR_MCO1_OFFSET); // Clear bits 21 and 22 to select HSI clock source
 	/* Initialize MCO1PRE (Microcontroller Clock Output Prescaler) */
-	RCC_CFGR &= ~(0x07UL << RCC_CFGR_MCO1PRE_OFFSET); // Clear bits 24, 25 and 26 to have no division done by the prescaler
+//	RCC_CFGR &= ~(0x07UL << RCC_CFGR_MCO1PRE_OFFSET); // Clear bits 24, 25 and 26 to have no division done by the prescaler
 
-#endif
+//#endif
 }
