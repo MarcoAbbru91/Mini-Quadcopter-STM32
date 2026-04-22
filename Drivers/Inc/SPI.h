@@ -113,8 +113,6 @@ FUNCTIONS PROTOTYPES
 /* Initialize SPI peripheral */
 void SPI_Init();
 
-/* Flush RX buffer */
-void SPI_ClearRX(void);
 /* Flush RX buffer and clear OVR flag — Is called after CS_LOW before first transmit */
 void SPI2_FlushRX(void);
 
@@ -129,11 +127,6 @@ void SPI2_Write(uint8_t Addr, uint8_t Data);
 /* SPI2 Reads data from slave */
 uint8_t SPI2_Read(uint8_t SPI_Data_Read);
 
-
-/* SPI Half-Duplex Write operation */
-void SPI_HD_Write(uint8_t *data, uint16_t len);
-/* SPI Half-Duplex Reads data from slave */
-void SPI_HD_Read(uint8_t *data, uint16_t len);
 
 
 #endif /* DRIVERS_INC_SPI_H_ */
