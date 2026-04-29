@@ -44,8 +44,11 @@ extern volatile uint32_t SysTick_Counter;
 int main(void)
 {
 	static uint32_t SysTick_Last     = 0;
-	uint8_t Counter100ms = 0U; // To read pressure sensor every 100ms
-	uint8_t Counter20ms  = 0U; // To read magnetic field information every 20ms
+	static uint32_t SysTick_Last5ms  = 0;
+	//float PWM_Mot1 = 0.0f;
+	//float PWM_Mot2 = 0.0f;
+	//float PWM_Mot3 = 0.0f;
+	//float PWM_Mot4 = 0.0f;
 
 	/* Initialize Reset and Clock as well as Flash Memory Interface, required for PLL */
 	RCC_Init();
@@ -79,9 +82,11 @@ int main(void)
 			SysTick_Last = SysTick_Counter;
 			LSM6DSL_Imu_Task();
 			
-			
-			Counter100ms += 1U;
-			Counter20ms  += 1U;
+			if((SysTick_Counter - SysTick_Last5ms) >= 5) // Check if 5ms are elapsed
+			{
+				SysTick_Last5ms = SysTick_Counter;
+				//PWM_Set(PWM_Mot1, PWM_Mot2, PWM_Mot3, PWM_Mot4); // TODO: Re-enable with FPU enabled, or re-enable using only uint
+			}
 
 		  /*if(Counter100ms >= 100U) // Read pressure sensor only every 100ms
 			{
