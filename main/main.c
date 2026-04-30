@@ -99,7 +99,12 @@ int main(void)
 				SysTick_Last50ms = SysTick_Counter;
 				LPS22HH_Pressure_Task(); // 50ms task
 			}
-
+			
+			if((SysTick_Counter - SysTick_Last5ms) >= 5) // Check if 5ms are elapsed
+			{
+				SysTick_Last5ms = SysTick_Counter;
+				//PWM_Set(PWM_Mot1, PWM_Mot2, PWM_Mot3, PWM_Mot4); // TODO: Re-enable with FPU enabled, or re-enable using only uint
+			}
 		}
 
 	}

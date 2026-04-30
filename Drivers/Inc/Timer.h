@@ -29,7 +29,7 @@ DEFINES
 #define SYSTICK_CTRL_ENABLE_OFFSET  (0UL)
 /* SysTick Timer Control and Status register Systick Exception Request Enable offset */
 #define SYSTICK_CTRL_TICKINT_OFFSET  (1UL)
-
+/* SysTick Timer Control and Status register Clock Source offset */
 #define SYSTICK_CTRL_CLKSOURCE_OFFSET  (2UL)
 /* SysTick Timer Reload value register base address */
 #define SYSTICK_LOAD  (* (volatile uint32_t *)(0xE000E014UL))
