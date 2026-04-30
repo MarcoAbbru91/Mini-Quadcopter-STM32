@@ -24,8 +24,7 @@
 #include "Timer.h"
 #include "SPI.h"
 #include "LPS22HH.h"
-#include "LIS2MDL.h"
-#include "LSM6DSL.h"
+#include "LSM6DSR.h"
 
 
 #if !defined(__SOFT_FP__) && defined(__ARM_FP)
@@ -45,6 +44,7 @@ int main(void)
 {
 	static uint32_t SysTick_Last     = 0;
 	static uint32_t SysTick_Last5ms  = 0;
+	static uint32_t SysTick_Last50ms = 0;
 	//float PWM_Mot1 = 0.0f;
 	//float PWM_Mot2 = 0.0f;
 	//float PWM_Mot3 = 0.0f;
@@ -67,12 +67,24 @@ int main(void)
 
 	LPS22HH_Pressure_Init();
 
-	LIS2MDL_Magnetom_Init();
-
-	LSM6DSL_Imu_Init();
+	LSM6DSR_Imu_Init();
 
 
 
+
+	/****** TMP code for debugging purposes below to be removed ******/
+	//volatile uint8_t who;
+
+	//LSM6DSR_CS_LOW();
+	//SPI2_FlushRX();
+	//who = SPI2_Read(0x0F);
+	//LSM6DSR_CS_HIGH();
+
+	//LPS22HH_CS_LOW();
+	//SPI2_FlushRX();
+	//who = SPI2_Read(0x0F);
+	//LPS22HH_CS_HIGH();
+	/****** TMP code for debugging purposes above to be removed ******/
 
 	/* Loop forever */
 	while(1)
@@ -80,24 +92,19 @@ int main(void)
 		if(SysTick_Counter != SysTick_Last)
 		{
 			SysTick_Last = SysTick_Counter;
-			LSM6DSL_Imu_Task();
+			LSM6DSR_Imu_Task(); // 1ms task
+
+			if((SysTick_Counter - SysTick_Last50ms) >= 50) // Check if 50ms are elapsed
+			{
+				SysTick_Last50ms = SysTick_Counter;
+				LPS22HH_Pressure_Task(); // 50ms task
+			}
 			
 			if((SysTick_Counter - SysTick_Last5ms) >= 5) // Check if 5ms are elapsed
 			{
 				SysTick_Last5ms = SysTick_Counter;
 				//PWM_Set(PWM_Mot1, PWM_Mot2, PWM_Mot3, PWM_Mot4); // TODO: Re-enable with FPU enabled, or re-enable using only uint
 			}
-
-		  /*if(Counter100ms >= 100U) // Read pressure sensor only every 100ms
-			{
-				LPS22HH_Pressure_Task();
-				Counter100ms = 0U;
-			}
-			if(Counter20ms >= 20U) // Read pressure sensor only every 20ms
-			{
-				LIS2MDL_Magnetom_Task();
-				Counter20ms = 0U;
-			}*/
 		}
 
 	}

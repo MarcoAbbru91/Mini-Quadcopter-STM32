@@ -9,15 +9,64 @@
 #include "SPI.h"
 
 
+
+
+
 void SPI_Init()
 {
+	/******** SPI2 initialization ********/
+
+	/* Enable Clock for SPI1 peripheral */
+	RCC_APB1 |= (0x01UL << RCC_APB1_SPI2_EN);
+
+	/* Disable SPI */
+	SPI2_CR1 &= ~(1UL << SPI_CR1_SPE_OFFSET);
+
+	/* Clears/sets SPI Clock Phase */
+	SPI2_CR1 &= ~(1UL << SPI_CR1_CPHA_OFFSET);
+	SPI2_CR1 |= (1 << SPI_CR1_CPHA_OFFSET); // Second clock transition is the first data capture edge. CPHA and CPOL set to 1 to have the SPI2 in Mode 3 for the sensors
+	/* Clears/sets SPI Clock Polarity */
+	SPI2_CR1 &= ~(1UL << SPI_CR1_CPOL_OFFSET);
+	SPI2_CR1 |= (1 << SPI_CR1_CPOL_OFFSET); // CLK=1 when idle. CPHA and CPOL set to 1 to have the SPI2 in Mode 3 for the sensors
+	/* Sets SPI Master Selection */
+	SPI2_CR1 |= (1UL << SPI_CR1_MSTR_OFFSET);
+	/* Clears and sets SPI Baud Rate */
+	SPI2_CR1 &= ~(7UL << SPI_CR1_BR_OFFSET); // Clear 3 bits
+	SPI2_CR1 |= (3UL << SPI_CR1_BR_OFFSET); // SPI Baud Rate reduced to (Clock Freq)/16 (to have SPI clock freq lower than its maximum, i.e. 10 MHz)
+	/* Clears/sets SPI LSB/MSB first */
+	SPI2_CR1 &= ~(1UL << SPI_CR1_LSBFIRST_OFFSET); // MSB first
+	/* SPI Software SSN Management */
+	SPI2_CR1 |= (1UL << SPI_CR1_SSM_OFFSET); // Software slave select (not Hardware)
+	/* Set SPI SSN (Slave Select) */
+	SPI2_CR1 |= (1UL << SPI_CR1_SSI_OFFSET);
+	/* Clears/sets SPI Half/Full-duplex communication */
+	SPI2_CR1 &= ~(1UL << SPI_CR1_RXONLY_OFFSET); // Full Duplex communication
+	/* Sets SPI Data Frame Format */
+	SPI2_CR1 &= ~(1UL << SPI_CR1_DFF_OFFSET); // Sensors use 8-bit data
+	/* Clears/sets SPI uni/bi-directional communication */
+	SPI2_CR1 &= ~(1UL << SPI_CR1_BIDIMODE_OFFSET); // 2-lines unidirectional mode
+
+	/* Enables SPI Interrupt on data reception completion */
+	//SPI1_CR2 |= (1UL << SPI_CR2_RXNEIE_OFFSET); ////* TODO: Re-enable if required to be read via interrupt *////
+
+	/* Enables SPI2 */
+	SPI2_CR1 |= (1UL << SPI_CR1_SPE_OFFSET);
+
+
+	/******** SPI1 initialization ********/
+
 	/* Enable Clock for SPI1 peripheral */
 	RCC_APB2 |= (0x01UL << RCC_APB2_SPI1_EN);
 
+	/* Disable SPI */
+	SPI1_CR1 &= ~(1UL << SPI_CR1_SPE_OFFSET);
+
 	/* Clears/sets SPI Clock Phase */
-	SPI1_CR1 &= ~(1UL << SPI_CR1_CPHA_OFFSET); // first clock transition is the first data capture edge
+	SPI1_CR1 &= ~(1UL << SPI_CR1_CPHA_OFFSET);
+	SPI1_CR1 |= (1 << SPI_CR1_CPHA_OFFSET); // Second clock transition is the first data capture edge. CPHA and CPOL set to 1 to have the SPI2 in Mode 3 for the sensors
 	/* Clears/sets SPI Clock Polarity */
-	SPI1_CR1 &= ~(1UL << SPI_CR1_CPOL_OFFSET); // CLK=0 when idle
+	SPI1_CR1 &= ~(1UL << SPI_CR1_CPOL_OFFSET);
+	SPI1_CR1 |= (1 << SPI_CR1_CPOL_OFFSET); // CLK=1 when idle. CPHA and CPOL set to 1 to have the SPI2 in Mode 3 for the sensors
 	/* Sets SPI Master Selection */
 	SPI1_CR1 |= (1UL << SPI_CR1_MSTR_OFFSET);
 	/* Clears and sets SPI Baud Rate */
@@ -36,68 +85,94 @@ void SPI_Init()
 	/* Clears/sets SPI uni/bi-directional communication */
 	SPI1_CR1 &= ~(1UL << SPI_CR1_BIDIMODE_OFFSET); // 2-lines unidirectional mode
 
-	/* Enables SPI Interrupt on data reception completion */
-	//SPI1_CR2 |= (1UL << SPI_CR2_RXNEIE_OFFSET); ////* TODO: Re-enable if required to be read via interrupt *////
+	/* Enables SPI Interrupt */
+	//SPI1_CR2 |= (1UL << SPI_CR2_RXNEIE_OFFSET); // TODO; Enable in future if needed
 
-	/* Enables SPI */
+	/* Enable SPI1 */
 	SPI1_CR1 |= (1UL << SPI_CR1_SPE_OFFSET);
 }
 
 
 
-void SPI_Transmit(uint8_t Val)
-{
-	/* Wait until TX buffer is empty */
-	while(!(SPI1_SR & (1UL << SPI_SR_TXE_OFFSET)));
-	/* Write to SPI DR register to initiate a write operation */
-	SPI1_DR = Val; // Writes the SPI Data buffer
 
-	while(SPI1_SR & (1UL << SPI_SR_BSY_OFFSET));
+/* Flush any stale data from the Rx buffer and clear OVR flag.*/
+inline void SPI2_FlushRX(void)
+{
+	volatile uint8_t dummy;
+	while(SPI2_SR & (1UL << SPI_SR_RXNE_OFFSET))
+	{
+		dummy = *(volatile uint8_t *)&SPI2_DR;
+	}
+	/* Reading SR after DR clears the OVR flag if set */
+	dummy = (volatile uint8_t)SPI2_SR;
+	(void)dummy; // to avoid warning of variable set but not used
 }
 
-uint8_t SPI_Receive(uint8_t DummyRead)
+/* Full-Duplex Transmit function */
+void SPI2_Transmit(uint8_t Val)
 {
-	uint8_t Pressure_Val;
+	//uint32_t Timeout = 10000; // TODO: To create a timeout timer of approx. 1ms, considering Clock=84MHz and below while-loop's iteration taking around 5-10 clock cycles.
+
+	/* Wait until SPI TX buffer is empty */
+	while(!(SPI2_SR & (1UL << SPI_SR_TXE_OFFSET)))
+	{
+		//TODO add return value in case of error
+		//if (--Timeout == 0) return (-1); // To avoid infinite loop in case of e.g. HW fail
+	}
+
+	/* Write to SPI DR register to initiate a write operation */
+	*(volatile uint8_t *)&SPI2_DR = Val; // Writes the SPI Data buffer
+}
+
+/* Full-Duplex Receive function */
+uint8_t SPI2_Receive(uint8_t DummyRead)
+{
+	uint8_t RetVal_Data;
 
 	if(DummyRead == 1U) // The first received data (during MOSI transfer) contains no useful data
 	{
 		/* Wait until RX buffer is empty */
-		while(!(SPI1_SR & (1UL << SPI_SR_RXNE_OFFSET)));
+		while(!(SPI2_SR & (1UL << SPI_SR_RXNE_OFFSET)));
 		/* Read SPI DR register to clear RXNE flag as well as RX buffer */
-		Pressure_Val = (uint8_t)SPI1_DR; // RXNE bit is automatically cleared.
+		RetVal_Data = *(volatile uint8_t *)&SPI2_DR; // RXNE bit is automatically cleared.
 		/* Always read SPI_DR register to avoid Overrun Flag (OVR) is set */
+
 		return (0); // This read will be discarded since useless
 	}
 	else{
 		/* Wait until RX buffer is empty */
-		while(!(SPI1_SR & (1UL << SPI_SR_RXNE_OFFSET)));
+		while(!(SPI2_SR & (1UL << SPI_SR_RXNE_OFFSET)));
 		/* Read SPI DR register to clear RXNE flag as well as RX buffer */
-		Pressure_Val = (uint8_t)SPI1_DR; // Reads the SPI Data Buffer (8 MSbits are automatically forced to 0 in SPI DR). RXNE bit is automatically cleared.
+		RetVal_Data = *(volatile uint8_t *)&SPI2_DR; // Reads the SPI Data Buffer (8 MSbits are automatically forced to 0 in SPI DR). RXNE bit is automatically cleared.
 		/* Always read SPI_DR register to avoid Overrun Flag (OVR) is set */
-		return(Pressure_Val);
+
+		return(RetVal_Data);
 	}
 }
 
-/* SPI Write operation to configure slave's registers */
-void SPI_Write(uint8_t Addr, uint8_t Data)
-{
-	SPI_Transmit(Addr & SPI_Write_Operation); // Send register's address, keeping MSB=0 (write operation)
-	SPI_Receive((uint8_t)1U);  // Dummy read operation (discarded) to empty RX buffer
 
-	SPI_Transmit(Data); // Data to be written in the sensor's register
-	SPI_Receive((uint8_t)1U); // Dummy read operation (discarded) to empty RX buffer
+/* SPI Write operation usually called only during init phase to configure slave's registers */
+void SPI2_Write(uint8_t Addr, uint8_t Data)
+{
+	SPI2_Transmit(Addr & SPI_Write_Operation); // Send register's address, keeping MSB=0 (write operation)
+	SPI2_Receive((uint8_t)1U);  // Dummy read operation (discarded) to empty RX buffer
+
+	SPI2_Transmit(Data); // Data to be written in the sensor's register
+	SPI2_Receive((uint8_t)1U); // Dummy read operation (discarded) to empty RX buffer
 }
 
-/* Reads data from slave */
-uint8_t SPI_Read(uint8_t SPI_Data_Read)
+/* SPI Read operation to read runtime data from slave */
+uint8_t SPI2_Read(uint8_t SPI_Data_Read)
 {
-	uint8_t RetVal_Pressure;
+	uint8_t RetVal_Data;
 
-	SPI_Transmit(SPI_Data_Read | SPI_Read_Operation);
-	SPI_Receive((uint8_t)1U);  // Dummy read operation (discarded) to empty RX buffer
+	SPI2_Transmit(SPI_Data_Read | SPI_Read_Operation);
+	SPI2_Receive((uint8_t)1U);  // Dummy read operation (discarded) to empty RX buffer
 
-	SPI_Transmit((uint8_t)Dummy_Write); // Dummy write operation just to generate clock
-	RetVal_Pressure = SPI_Receive((uint8_t)0U);
+	SPI2_Transmit((uint8_t)Dummy_Write); // Dummy write operation just to generate clock
+	RetVal_Data = SPI2_Receive((uint8_t)0U);
 
-	return (RetVal_Pressure);
+	return (RetVal_Data);
 }
+
+
