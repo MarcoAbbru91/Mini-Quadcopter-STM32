@@ -11,18 +11,16 @@ Pushed on main branch
       4. SPI driver
       5. GPIOs
 - [x] Clock source as PLL at 84 MHz.
-- [x] SysTick implementation. Extend implementation for TIM4 and PWM.
+- [x] SysTick implementation. Extend implementation for TIM4 and PWM (for remaining 3 channels).
 - [x] Pressure, Magnetic and Accelerometer/IMU sensors firmware implementation (with related SPI and GPIO configuration).
+- [X] PWM update/optimization (variable frequency PWM and switched to center-aligned)
+- [X] SPI code improvement after full testing of reading sensors' data
 
 In Progress
 - [ ] BLE module configuration
-- [ ] HAL layer creation
 - [ ] PID controllers implementation and tuning
 
 Upcoming / In pipeline
-- [ ] Make PWM have variable frequency (runtime duty cycle control)
-- [ ] Switch to center-aligned PWM
 - [ ] Custom makefile (indipendent from STM32CubeIDE internal makefile)
-- [ ] Mutex/semaphore implementation (SPI is shared by multiple tasks)
-- [ ] Integration of firmware and control algorithm
-
+- [ ] Integration of firmware and control algorithm (Simulink generated code)
+- [ ] HAL layer creation and firmware code cleanup
