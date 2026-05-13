@@ -1,3 +1,24 @@
+%% Model parameters %%
+
+M = 0.07; % Mass = 70g
+g = 9.81; % Gravity force
+Drag = -0.1; % Aerodynamic drag gain / translational drag
+
+L = 0.07; % Distance center-propeller = 7cm
+a = L/sqrt(2); % Because of the 'x' configuration, since the motors lie on the diagonal
+
+Ix = 2*10^(-4); % Moment of inertia. Parameter used inside the 6DOF block
+Iy = 2*10^(-4); % Moment of inertia. Parameter used inside the 6DOF block
+Iz = 4*10^(-4); % Moment of inertia. Parameter used inside the 6DOF block
+
+Km = 10^(-6); % Propeller reaction torque which causes yaw
+Kf = 10^(-5); % Converts motor speed into thrust
+
+Hover_FeedForw_Coef = 245250; % Hover feedforward scaling coefficient (approximated as g/(4*Kf) )
+
+
+%% Model Simulation %%
+
 % Sample time / Scheduler (5ms)
 Ts = 0.005;
 % Simulation time
@@ -14,7 +35,7 @@ Yaw_Command = timeseries(zeros(size(t)), t);  % no rotation
 simOut = sim("Quadcopter_Model.slx")
 
 
-%% ===== After simulation =====
+%% After simulation %%
 
 Ve = simOut.Ve;
 Xe = simOut.Xe;
@@ -77,16 +98,3 @@ title('Angular rate');
 xlabel('Radians per second [rad/s]');
 ylabel('Time');
 grid on;
-
-%figure;
-%subplot(3,1,1); plot(t_out, roll);  title('Roll');
-%subplot(3,1,2); plot(t_out, pitch); title('Pitch');
-%subplot(3,1,3); plot(t_out, yaw);   title('Yaw');
-
-
-% t = [0 5 10 20];
-
-% Throttle_Desired_Altitude = timeseries([0 1 1 1], t);  % step to 1m at t=5s
-% Desired_X_Pos = timeseries([0 0 2 2], t);  % move to x=2 at t=10s
-% Desired_Y_Pos = timeseries([0 0 -1 -1], t);  % move to y=-1 at t=10s
-% Yaw_Command = timeseries([0 0 pi/4 pi/4], t);  % rotate 45° at t=10s
