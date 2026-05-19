@@ -15,12 +15,12 @@ Pushed on main branch
 - [x] Pressure, Magnetic and Accelerometer/IMU sensors firmware implementation (with related SPI and GPIO configuration).
 - [X] PWM update/optimization (variable frequency PWM and switched to center-aligned)
 - [X] SPI code improvement after full testing of reading sensors' data
+- [X] PID controllers implementation and tuning
 
 In Progress
 - [ ] BLE module configuration
-- [ ] PID controllers implementation and tuning
+- [ ] Integration of firmware and control algorithm (Simulink generated code)
 
 Upcoming / In pipeline
 - [ ] Custom makefile (indipendent from STM32CubeIDE internal makefile)
-- [ ] Integration of firmware and control algorithm (Simulink generated code)
 - [ ] HAL layer creation and firmware code cleanup
