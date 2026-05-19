@@ -19,19 +19,19 @@ Hover_FeedForward = sqrt((M*g)/(4*Kf)); % Hover feedforward scaling term
 
 %% Model Simulation %%
 
-% Sample time / Scheduler (5ms)
-Ts = 0.005;
+% Sample time / Scheduler (2ms)
+Ts = 0.002;
 % Simulation time
 t = 0:Ts:30;   % 30 seconds simulation
 
 % Desired altitude (Throttle_Desired_Altitude)
 Throttle_Desired_Altitude = timeseries(-1 * ones(size(t)), t);  % 1 meter
-% Desired X position
+% Desired Roll
 Desired_Roll = timeseries(zeros(size(t)), t);  % hold at 10   (only for tuning: timeseries((5*pi/180) * ones(size(t)), t))
-% Desired Y position
+% Desired Pitch
 Desired_Pitch = timeseries(zeros(size(t)), t);  % hold at 5
-% Yaw command (in radians)
-Desired_Yaw = timeseries(zeros(size(t)), t);  % no rotation
+% Desired Yaw (in radians)
+Desired_Yaw = timeseries((5*pi/180) * ones(size(t)), t);  % no rotation
 % Start simulation
 simOut = sim("Quadcopter_Model.slx")
 
