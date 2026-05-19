@@ -7,14 +7,14 @@ Drag = -0.1; % Aerodynamic drag gain / translational drag
 L = 0.07; % Distance center-propeller = 7cm
 a = L/sqrt(2); % Because of the 'x' configuration, since the motors lie on the diagonal
 
-Ix = 2*10^(-4); % Moment of inertia. Parameter used inside the 6DOF block
-Iy = 2*10^(-4); % Moment of inertia. Parameter used inside the 6DOF block
-Iz = 4*10^(-4); % Moment of inertia. Parameter used inside the 6DOF block
+Ix = 6*10^(-5); % Moment of inertia. Parameter used inside the 6DOF block
+Iy = 6*10^(-5); % Moment of inertia. Parameter used inside the 6DOF block
+Iz = 1.2*10^(-4); % Moment of inertia. Parameter used inside the 6DOF block
 
-Km = 10^(-6); % Propeller reaction torque which causes yaw
-Kf = 10^(-5); % Converts motor speed into thrust
+Km = 3*10^(-9); % Propeller reaction torque which causes yaw (Prev 10^(-6))
+Kf = 3*10^(-7); % Converts motor speed into thrust (Prev 10^(-5))
 
-Hover_FeedForw_Coef = 245250; % Hover feedforward scaling coefficient (approximated as g/(4*Kf) )
+Hover_FeedForward = sqrt((M*g)/(4*Kf)); % Hover feedforward scaling term
 
 
 %% Model Simulation %%
@@ -22,16 +22,17 @@ Hover_FeedForw_Coef = 245250; % Hover feedforward scaling coefficient (approxima
 % Sample time / Scheduler (5ms)
 Ts = 0.005;
 % Simulation time
-t = 0:Ts:20;   % 20 seconds simulation
+t = 0:Ts:30;   % 30 seconds simulation
 
 % Desired altitude (Throttle_Desired_Altitude)
-Throttle_Desired_Altitude = timeseries(-15 * ones(size(t)), t);  % 15 meter
+Throttle_Desired_Altitude = timeseries(-1 * ones(size(t)), t);  % 1 meter
 % Desired X position
-Desired_X_Pos = timeseries(10 * ones(size(t)), t);  % hold at 10
+Desired_Roll = timeseries(zeros(size(t)), t);  % hold at 10   (only for tuning: timeseries((5*pi/180) * ones(size(t)), t))
 % Desired Y position
-Desired_Y_Pos = timeseries(5 * ones(size(t)), t);  % hold at 5
+Desired_Pitch = timeseries(zeros(size(t)), t);  % hold at 5
 % Yaw command (in radians)
-Yaw_Command = timeseries(zeros(size(t)), t);  % no rotation
+Desired_Yaw = timeseries(zeros(size(t)), t);  % no rotation
+% Start simulation
 simOut = sim("Quadcopter_Model.slx")
 
 
@@ -69,32 +70,32 @@ r = wb_data(:,3);
 
 figure;
 plot(t_out, vx, t_out, vy, t_out, vz);
-legend('Velocity on three axis');
+legend('Vx', 'Vy', 'Vz');
 title('Velocity');
-xlabel('Velocity [m/s]');
-ylabel('Time');
+xlabel('Time');
+ylabel('Velocity [m/s]');
 grid on;
 
 figure;
 plot(t_out, x, t_out, y, t_out, z);
-legend('Position on three axis');
+legend('X', 'Y', 'Z');
 title('Altitude');
-xlabel('Position [m]');
-ylabel('Time');
+xlabel('Time');
+ylabel('Position [m]');
 grid on;
 
 figure;
 plot(t_out, roll, t_out, pitch, t_out, yaw);
 legend('Roll','Pitch','Yaw');
 title('Attitude (RPY)');
-xlabel('Time [s]');
+xlabel('Time');
 ylabel('Angle');
 grid on;
 
 figure;
 plot(t_out, p, t_out, q, t_out, r);
-legend('Angular rates in body axes');
+legend('Roll','Pitch','Yaw');
 title('Angular rate');
-xlabel('Radians per second [rad/s]');
-ylabel('Time');
+xlabel('Time');
+ylabel('Radians per second [rad/s]');
 grid on;
