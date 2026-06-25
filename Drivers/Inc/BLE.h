@@ -5,83 +5,65 @@
  *      Author: marco91
  */
 
-/**
- * @file BLE.h
- * @brief BLE driver for BlueNRG (SPI-based)
- *
- * This module provides:
- *  - Initialization of BLE stack (GATT + GAP + advertising)
- *  - Event-driven processing (IRQ + SPI)
- *  - Simple GATT service (TX notify + RX write)
- *  - Callback interface for application layer
- *
- * Usage:
- *  - Call BLE_Init() once at startup
- *  - Call BLE_Process() in main loop or task
- *  - Implement hardware functions (SPI, GPIO)
- */
-
+  
 #ifndef BLE_H
 #define BLE_H
 
+
 #include <stdint.h>
+#include "gp_timer.h"
+#include "debug.h"
+#include "hci.h"
 #include "GPIO.h"
 #include "Timer.h"
-#include "BLE_Appl.h"
+#include "Sensor_service.h"
+
 
 
 /****************************************************************************
 DEFINES
 ****************************************************************************/
+#define SYSCLK_FREQ 84000000
 
-/* Maximum size of SPI buffer (it must cover the largest BLE packet) */
-#define BLE_MAX_BUFFER 128
+/* SPI CS Pin for BLE module (PB0) */
+#define BLE_CS_HIGH()  (GPIOB_BSRR = (1UL << GPIOB_BSRR_BS_0_OFFSET))/* Set CS pin high */
+#define BLE_CS_LOW()   (GPIOB_BSRR = (1UL << GPIOB_BSRR_BR_0_OFFSET))/* Set CS pin low */
+
+#define STM32_UUID ((uint32_t *)0x1FFF7A10)
+#define GAP_PERIPHERAL_ROLE_IDB05A1			(0x01)
+#define MITM_PROTECTION_REQUIRED        (0x01)
+#define OOB_AUTH_DATA_ABSENT		    (0x00)
+#define USE_FIXED_PIN_FOR_PAIRING		(0x00)
+#define BONDING				            (0x01)
 
 
-/* SPI CS Pin for BLE module */
-#define BLE_CS_HIGH()  (GPIOB_BSRR |= (1UL << GPIOB_BSRR_BS_0_OFFSET))/* Set CS pin high */
-#define BLE_CS_LOW()   (GPIOB_BSRR |= (1UL << GPIOB_BSRR_BR_0_OFFSET))/* Set CS pin low */
-
-/* Control bytes for BlueNRG SPI */
-#define BLE_SPI_WRITE 0x0A
-#define BLE_SPI_READ  0x0B
 
 
 /****************************************************************************
 GLOBAL VARIABLES
 ****************************************************************************/
-
-/* Internal BLE state machine */
-typedef enum
-{
-	BLE_STATE_IDLE = 0, // Not initialized
-	BLE_STATE_READY,    // Initialized, advertising
-	BLE_STATE_CONNECTED // Connected to central device
-} BLE_State_t;
-
-/* SPI buffers */
-uint8_t SPI_TX[BLE_MAX_BUFFER];
-uint8_t SPI_RX[BLE_MAX_BUFFER];
-
+extern volatile uint32_t HCI_ProcessEvent;
 
 
 
 /****************************************************************************
 FUNCTIONS PROTOTYPES
 ****************************************************************************/
+void Clear_SPI_EXTI_Flag(void);
+void Enable_SPI_IRQ(void);
+void Disable_SPI_IRQ(void);
+void BLE_IRQ_SetAsOutput(void);
+void BLE_IRQ_SetAsInput(void);
 
-/* IRQ handler called by external interrupt (EXTI) */
-void BLE_EXTI_IRQHandler(void);
+uint8_t BLE_Init(void);
 
-/* BLE module initialization */
-void BLE_Init(void);
+uint8_t BlueNRG_DataPresent(void);
 
-uint16_t BLE_SPI_Read(uint8_t *buffer);
+uint32_t BlueNRG_SPI_Read_All(uint8_t *buffer, uint8_t buff_size);
+uint32_t BlueNRG_SPI_Write(uint8_t* data1, uint8_t* data2, uint8_t Nb_bytes1, uint8_t Nb_bytes2);
 
-void BLE_SPI_Write(uint8_t *data, uint16_t len);
+extern void Hal_Write_Serial(const void* data1, const void* data2, uint16_t n_bytes1, uint16_t n_bytes2);
 
-/* Process regular BLE events (events from SPI, parsing of events, triggering of callbacks) */
-void BLE_Process(void);
-
+ 
 
 #endif

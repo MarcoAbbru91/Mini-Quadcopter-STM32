@@ -12,10 +12,12 @@ extern volatile uint32_t SysTick_Counter;
 
 
 
-void Delay_ms(uint32_t ms)
+
+
+void Delay_ms(float ms)
 {
-	uint8_t Timer_Delay_Start = SysTick_Counter;
-	while((SysTick_Counter - Timer_Delay_Start) < ms); // Wait inside this function until the expected number of ms are elapsed
+	uint32_t Timer_Delay_Start = SysTick_Counter;
+	while((float)(SysTick_Counter - Timer_Delay_Start) < ms); // Wait inside this function until the expected number of ms are elapsed
 }
 
 

@@ -173,7 +173,7 @@ FUNCTIONS PROTOTYPES
 ****************************************************************************/
 
 /* Create delay in milliseconds */
-void Delay_ms(uint32_t ms);
+void Delay_ms(float ms);
 
 /* Initialize CPU SysTick and General-Purpose Timer peripheral */
 void Timer_Init();

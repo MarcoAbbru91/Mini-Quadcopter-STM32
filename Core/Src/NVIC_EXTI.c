@@ -5,13 +5,13 @@
  *      Author: marco91
  */
 
-#include <NVIC_EXTI.h>
+#include "NVIC_EXTI.h"
+#include "hci.h"
 
 
 /****************************************************************************
 Global variables
 ****************************************************************************/
-//#define NULL         ((void *)0)
 volatile uint32_t SysTick_Counter = 0UL;
 
 
@@ -69,15 +69,48 @@ void NVIC_EXTI_Init()
 	EXTI_IMR |= (1UL << EXTI_IMR_MR4_OFFSET); // Set line 4
 	/* EXTI Rising Trigger Selection */
 	EXTI_RTSR |= (1UL << EXTI_RTSR_TR4_OFFSET); // Set line 4
+
+	/* Clean eventual pending flag */
+	EXTI_PR = (1UL << EXTI_PR_PR4_OFFSET);
 }
 
+/* CMSIS-equivalent intrinsics, required by the BlueNRG middleware (ble_list.c),
+ * since this project doesn't include ST's CMSIS device headers */
+uint32_t __get_PRIMASK(void)
+{
+	uint32_t primask;
+	__asm volatile ("MRS %0, primask" : "=r" (primask));
+	return primask;
+}
 
+void __set_PRIMASK(uint32_t primask)
+{
+	__asm volatile ("MSR primask, %0" :: "r" (primask));
+}
 
+void __enable_irq(void)
+{
+	__asm volatile ("cpsie i");
+}
+
+void __disable_irq(void)
+{
+	__asm volatile ("cpsid i");
+}
+
+/* Millisecond tick used by ble_clock.h's Clock_Time(), in place of the STM32 HAL */
+uint32_t HAL_GetTick(void)
+{
+	return SysTick_Counter;
+}
+
+__attribute__((used, externally_visible))
 void SysTick_Handler(void)
 {
 	SysTick_Counter++;
 }
 
+__attribute__((used, externally_visible))
 void TIM4_IRQHandler(void)
 {
 	if(TIM4_SR & (1UL << TIM4_SR_UIF_OFFSET))
@@ -86,13 +119,14 @@ void TIM4_IRQHandler(void)
 	}
 }
 
+__attribute__((used, externally_visible))
 void EXTI4_IRQHandler(void)
 {
 	if (EXTI_PR & (1UL << EXTI_PR_PR4_OFFSET)) // Pending interrupt
 	{
-		EXTI_PR = (1UL << EXTI_PR_PR4_OFFSET); // Clear flag
-
-		BLE_EXTI_IRQHandler();
+		HCI_Isr();   // reads packets and queues them
+		// No need to manually clear the flag anymore, since it is done inside HCI_Isr()
+		HCI_ProcessEvent = 1UL;
 	}
 }
 
