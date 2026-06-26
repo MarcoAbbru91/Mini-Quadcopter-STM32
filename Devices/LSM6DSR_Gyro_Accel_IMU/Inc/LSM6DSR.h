@@ -20,19 +20,19 @@ DEFINES
 
 /* Registers definition */
 #define CTRL1_XL      (0x10U)   // Accelerometer configuration
-#define CTRL1_XL_VAL  (0x6AU)   // 01100000 -> ODR = 416Hz, FS = ±4g, LowPass Filter LPF2 enabled
+#define CTRL1_XL_VAL  (0x6AU)   // 01101010 -> ODR = 416Hz, FS = ±4g, LowPass Filter LPF2 enabled
 
 #define CTRL2_G       (0x11U)   // Gyroscope configuration
-#define CTRL2_G_VAL   (0x68U)    // ODR = 416 Hz, FS = ±2000 dps
+#define CTRL2_G_VAL   (0x68U)    // 01101000 -> ODR = 416Hz, FS = ±2000 dps
 
 #define CTRL3_C       (0x12U)   // Interface settings
-#define CTRL3_C_VAL   (0x44U)   // BDU=1 (avoid partial register update), IF_INC=1 (allows multi-bytes read)
+#define CTRL3_C_VAL   (0x44U)   // 01000100 -> BDU=1 (avoid partial register update), IF_INC=1 (allows multi-bytes read)
 
 #define CTRL4_C       (0x13U)   // Filter / SPI configuration
-#define CTRL4_C_VAL   (0x04U)   // i2c disabled
+#define CTRL4_C_VAL   (0x04U)   // 00000100 -> i2c disabled
 
 #define CTRL8_XL      (0x17U)   // Accelerometer filtering
-#define CTRL8_XL_VAL  (0xC0U)   // Low-pass filtering enabled. LPF2 cutoff = ODR/100 = 4Hz
+#define CTRL8_XL_VAL  (0xC0U)   // 11000000 -> Low-pass filtering enabled. LPF2 cutoff = ODR/100 = 4Hz
 
 
 #define GYRO_OUTX_L_G  (0x22U) // Output register - L=Low byte
@@ -53,8 +53,8 @@ DEFINES
 #define LSM6DSR_CS_LOW()   (GPIOA_BSRR = (1UL << GPIOA_BSRR_BR_8_OFFSET))/* Set CS pin low */
 
 
-#define GYRO_SENSITIVITY   (0.07f)     // Sensitivity is 70 mdps/LSB according to the datasheet, where dps=degree per second
-#define ACCEL_SENSITIVITY  (0.000122f) // Sensitivity is 0.122 mg/LSB according to the datasheet, where dps=degree per second
+#define GYRO_SENSITIVITY   (0.07f)     // Sensitivity is 70 mdps/LSB according to the datasheet, where dps=degree per second, to measure angular velocity
+#define ACCEL_SENSITIVITY  (0.000122f) // Sensitivity is 0.122 mg/LSB according to the datasheet
 
 
 /****************************************************************************

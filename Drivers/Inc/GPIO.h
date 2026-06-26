@@ -119,6 +119,12 @@ DEFINES
 /* */
 #define GPIOB_PUPDR_14_OFFSET (28UL)
 
+/* GPIOB Output Data Register offset */
+#define GPIOB_ODR_OFFSET         (0x14UL) /* GPIOB Output Data Register offset */
+#define GPIOB_ODR_ADDRESS        (GPIOB_BASE_ADDRESS + GPIOB_ODR_OFFSET)
+#define GPIOB_ODR                (* (volatile uint32_t *)(GPIOB_ODR_ADDRESS)) // typecast and dereference
+/* GPIOB Output Data Register PB2  offset */
+#define GPIOB_ODR_2_OFFSET  (2UL)
 
 /* GPIOB AFRL - Alternate Function Low Register offset */
 #define GPIOB_AFRL_OFFSET         (0x20UL) /* GPIOB Alternate Function Register address */

@@ -4,8 +4,10 @@
  *  Created on: 24 feb 2026
  *      Author: marco91
  */
+
 #include "NVIC_EXTI.h"
 #include "hci.h"
+
 
 /****************************************************************************
 Global variables

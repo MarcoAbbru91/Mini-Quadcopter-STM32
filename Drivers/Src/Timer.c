@@ -31,7 +31,7 @@ void Timer_Init(void)
 	/* SysTick Exception Request Enable */
 	SYSTICK_CTRL |= (0x01UL << SYSTICK_CTRL_TICKINT_OFFSET); // Assert the SysTick exception request
 	/* Processor Clock selection */
-	SYSTICK_CTRL |= (0x01UL << SYSTICK_CTRL_CLKSOURCE_OFFSET); // // Processor Clock (AHB) selected
+	SYSTICK_CTRL |= (0x01UL << SYSTICK_CTRL_CLKSOURCE_OFFSET); // Processor Clock (AHB) selected
 
 	/* Timer4 peripheral initialization */
 	/* Enable Clock for Timer4 peripheral */

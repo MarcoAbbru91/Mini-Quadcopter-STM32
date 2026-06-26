@@ -117,11 +117,8 @@ int main(void)
 	{
 		if(SysTick_Counter != SysTick_Last)
 		{
-			if((SysTick_Counter - SysTick_Last2ms) >= 2) // Check if 2ms are elapsed
-			{
 				SysTick_Last = SysTick_Counter;
-				LSM6DSR_Imu_Task(); // 2ms task
-			}
+				LSM6DSR_Imu_Task(); // 1ms task
 
 
 			if((SysTick_Counter - SysTick_Last10ms) >= 10) // Check if 10ms are elapsed

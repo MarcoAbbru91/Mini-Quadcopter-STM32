@@ -15,7 +15,7 @@ void LSM6DSR_Imu_Init()
 	/* Set CS to HIGH (idle) before starting any SPI transaction */
 	LSM6DSR_CS_HIGH();
 	/* Small delay to be sure all pins are now really high */
-	Delay_ms(1);
+	Delay_ms(1.0f);
 
 	IMU_raw.Gyroscope_x_dps_raw = 0U;
 	IMU_raw.Gyroscope_y_dps_raw = 0U;
