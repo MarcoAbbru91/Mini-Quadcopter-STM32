@@ -23,39 +23,62 @@
 #include "GPIO.h"
 #include "Timer.h"
 #include "SPI.h"
+#include "BLE.h"
+#include "hci.h"
 #include "LPS22HH.h"
 #include "LSM6DSR.h"
 
 
-#if !defined(__SOFT_FP__) && defined(__ARM_FP)
-  #warning "FPU is not initialized, but the project is compiling for an FPU. Please initialize the FPU before use."
-#endif
-
 
 /****************************************************************************
-Global variables
+GLOBAL VARIABLES
 ****************************************************************************/
 extern volatile uint32_t SysTick_Counter;
 
+
+extern uint8_t set_connectable;
+extern int connected;
+
+
+/* Define FPU base address */
+#define FPU_BASE_ADDRESS      (0xE000ED00UL)
+
+/* FPU CPACR - Coprocessor access control register offset */
+#define FPU_CPACR_OFFSET        (0x88UL)
+/* FPU CPACR Register address */
+#define FPU_CPACR_ADDRESS       (FPU_BASE_ADDRESS + FPU_CPACR_OFFSET)
+#define FPU_CPACR               (* (volatile uint32_t *)(FPU_CPACR_ADDRESS)) // typecast and dereference
+/* FPU CPACR CP10 offset */
+#define FPU_CPACR2_CP10_OFFSET  (20UL) // 2 bits
+/* FPU CPACR CP11 offset */
+#define FPU_CPACR2_CP11_OFFSET  (22UL) // 2 bits
+
+
+static inline void Enable_FPU(void)
+{
+	FPU_CPACR |= (3UL << FPU_CPACR2_CP10_OFFSET); // FPU Full Access
+	FPU_CPACR |= (3UL << FPU_CPACR2_CP11_OFFSET); // FPU Full Access
+}
 
 
 
 int main(void)
 {
-	static uint32_t SysTick_Last     = 0;
-	static uint32_t SysTick_Last5ms  = 0;
-	static uint32_t SysTick_Last50ms = 0;
-	//float PWM_Mot1 = 0.0f;
-	//float PWM_Mot2 = 0.0f;
-	//float PWM_Mot3 = 0.0f;
-	//float PWM_Mot4 = 0.0f;
+	uint8_t retVal;
+	static uint32_t SysTick_Last    = 0;
+	static uint32_t SysTick_Last10ms = 0;
 
 	/* Initialize Reset and Clock as well as Flash Memory Interface, required for PLL */
 	RCC_Init();
-	/* NVIC and EXTI initialization - Enable_Interrupts */
-	NVIC_EXTI_Init();
 	/* Initialize System Configuration Controller */
 	SysCfg_Init();
+	/* NVIC and EXTI initialization - Enable_Interrupts */
+	NVIC_EXTI_Init();
+	/* Enable Floating Point Unit */
+	Enable_FPU(); // Required for usage of "float" data type operations
+
+	__asm volatile ("cpsie i");
+
 	/* Initialize General-Purpose Timer */
 	Timer_Init();
 	/* Initialize GPIOs */
@@ -64,11 +87,13 @@ int main(void)
 	PWM_Init();
 	/* Initialize SPI */
 	SPI_Init();
-
+	/* Initialize pressure sensor */
 	LPS22HH_Pressure_Init();
-
+	/* Initialize IMU sensor */
 	LSM6DSR_Imu_Init();
-
+	/* Initialize BLE */
+	retVal = BLE_Init();
+	(void)retVal;/* TODO Add countermeasure for error return */
 
 
 
@@ -85,27 +110,35 @@ int main(void)
 	//who = SPI2_Read(0x0F);
 	//LPS22HH_CS_HIGH();
 	/****** TMP code for debugging purposes above to be removed ******/
+	
 
 	/* Loop forever */
 	while(1)
 	{
 		if(SysTick_Counter != SysTick_Last)
 		{
-			SysTick_Last = SysTick_Counter;
-			LSM6DSR_Imu_Task(); // 1ms task
+				SysTick_Last = SysTick_Counter;
+				LSM6DSR_Imu_Task(); // 1ms task
 
-			if((SysTick_Counter - SysTick_Last50ms) >= 50) // Check if 50ms are elapsed
+
+			if((SysTick_Counter - SysTick_Last10ms) >= 10) // Check if 10ms are elapsed
 			{
-				SysTick_Last50ms = SysTick_Counter;
-				LPS22HH_Pressure_Task(); // 50ms task
+				SysTick_Last10ms = SysTick_Counter;
+				//////////////////////////* Processa BLE sia se c'è stato un IRQ, sia se il pin è già alto */
+				/* Problem was happening for which BLE_IRQ_Counter was never incrementing, cause I was only checking for a rising edge of the IRQ pin, which was however already HIGH since the BLE boot */
+				if (HCI_ProcessEvent) {
+					HCI_ProcessEvent = 0;
+
+					HCI_Process(); // empties the queue and calls HCI_Event_CB - 5ms task
+				}
+				if (set_connectable) {
+					 //Now update the BLE advertize data and make the board connectable
+					setConnectable();
+					set_connectable = FALSE;
+				}
 			}
-			
-			if((SysTick_Counter - SysTick_Last5ms) >= 5) // Check if 5ms are elapsed
-			{
-				SysTick_Last5ms = SysTick_Counter;
-				//PWM_Set(PWM_Mot1, PWM_Mot2, PWM_Mot3, PWM_Mot4); // TODO: Re-enable with FPU enabled, or re-enable using only uint
-			}
+
 		}
-
 	}
+
 }

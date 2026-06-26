@@ -10,8 +10,21 @@
 
 void GPIO_Init(void)
 {
-	/* Enable Clock for GPIOB peripheral - Needed for PWM on TIM4 (Ch1 to Ch4) as well as for the sensors*/
+	/* Enable Clock for GPIOB peripheral - Needed for PWM on TIM4 (Ch1 to Ch4) as well as for the sensors */
 	RCC_AHB1 |= (0x01UL << RCC_AHB1_GPIOB_EN);
+
+	/* CS SPI pin for the BLE module */
+	/* Clear and Set port to digital output mode */
+	GPIOB_MODER &= ~(0x3UL << GPIOB_MODER_0_OFFSET);
+	GPIOB_MODER |=  (0x1UL << GPIOB_MODER_0_OFFSET); // General Purpose Output mode
+	/* Sets speed for PB0 */
+	GPIOB_OSPEEDR |=  (0x3UL << GPIOB_OSPEEDR_0_OFFSET); // Very High Speed
+	/* SPI Reset pin for the BLE module */
+	/* Clear and Set port to digital output mode */
+	GPIOB_MODER &= ~(0x3UL << GPIOB_MODER_2_OFFSET);
+	GPIOB_MODER |=  (0x1UL << GPIOB_MODER_2_OFFSET); // General Purpose Output mode
+	/* Sets speed for PB2 */
+	GPIOB_OSPEEDR |=  (0x3UL << GPIOB_OSPEEDR_2_OFFSET); // Very High Speed
 	/* Clear and Set port to Alternate Function mode */
 	GPIOB_MODER &= ~(0x3UL << GPIOB_MODER_6_OFFSET);
 	GPIOB_MODER |=  (0x2UL << GPIOB_MODER_6_OFFSET); // 2 = Alternate Function Mode
@@ -74,6 +87,13 @@ void GPIO_Init(void)
 
 	/* Enable Clock for GPIOA peripheral - Needed for SCK, MOSI, MISO SPI pins for the three sensors */
 	RCC_AHB1 |= (0x01UL << RCC_AHB1_GPIOA_EN);
+
+	/* SPI IRQ pin for the BLE module */
+	/* Clear and Set port to digital output mode */
+	GPIOA_MODER &= ~(0x3UL << GPIOA_MODER_4_OFFSET);
+	GPIOA_MODER |=  (0x0UL << GPIOA_MODER_4_OFFSET); // Input mode
+	/* Sets speed for PB4 */
+	GPIOA_OSPEEDR |=  (0x3UL << GPIOA_OSPEEDR_4_OFFSET); // Very High Speed
 	/* Clear and Set port 5 to Alternate Function mode 5 */
 	GPIOA_MODER &= ~(0x3UL << GPIOA_MODER_5_OFFSET);
 	GPIOA_MODER |=  (0x2UL << GPIOA_MODER_5_OFFSET);
@@ -114,4 +134,11 @@ void GPIO_Init(void)
 	/* Sets speed for PC13 */
 	GPIOC_OSPEEDR |=  (0x3UL << GPIOC_OSPEEDR_13_OFFSET); // Very High Speed
 }
+
+
+bool BLE_IRQ_ReadGPIO(void)
+{
+	return ((GPIOA_IDR & (1UL << GPIOA_IDR_4_OFFSET)) != 0UL); // Data register for pin PA4 is equal to 1 (HIGH) or 0
+}
+
 

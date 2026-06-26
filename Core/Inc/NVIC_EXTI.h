@@ -45,7 +45,8 @@ DEFINES
 #define Prio_Lev_15  0xF0U
 
 
-#define NVIC_ISER_BASEADDR  ((volatile uint32_t *)(0xE000E200)) // Interrupt Set-Enable Register base address
+#define NVIC_ISER_BASEADDR  ((volatile uint32_t *)(0xE000E100)) // Interrupt Set-Enable Register base address
+#define NVIC_ICER_BASEADDR  ((volatile uint32_t *)(0xE000E180)) // Interrupt Clear-Enable Register base address
 #define NVIC_IPR_BASEADDR   ((volatile uint32_t *)(0xE000E400)) // Interrupt Priority Register base address
 
 
@@ -80,8 +81,7 @@ DEFINES
 #define EXTI_PR_PR4_OFFSET  (4UL)
 
 
-/****** Enable Interrupts ******/
-#define enable_irq()     __asm volatile ("cpsie i")
+
 
 /****************************************************************************
 FUNCTIONS PROTOTYPES
@@ -91,7 +91,6 @@ void Priority_IRQ(uint8_t Irq_n, uint8_t Irq_val);
 
 void NVIC_EXTI_Init();
 
-void SysTick_Handler(void) __attribute__((used, externally_visible));
 
 
 #endif /* NVIC_EXTI_H_ */

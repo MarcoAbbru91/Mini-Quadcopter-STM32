@@ -11,6 +11,7 @@
 
 #include <stdint.h>
 #include "RCC.h"
+#include "GPIO.h"
 
 /****************************************************************************
 DEFINES
@@ -113,11 +114,9 @@ FUNCTIONS PROTOTYPES
 /* Initialize SPI peripheral */
 void SPI_Init();
 
+/******** SPI2 (Sensors) functions ********/
 /* Flush RX buffer and clear OVR flag — Is called after CS_LOW before first transmit */
 void SPI2_FlushRX(void);
-
-
-
 /* SPI2 Transmit operation */
 void SPI2_Transmit(uint8_t Val);
 /* SPI2 Receive operation */
@@ -127,6 +126,16 @@ void SPI2_Write(uint8_t Addr, uint8_t Data);
 /* SPI2 Reads data from slave */
 uint8_t SPI2_Read(uint8_t SPI_Data_Read);
 
+
+/******** SPI1 (BLE) functions ********/
+/* Flush RX buffer and clear OVR flag */
+void SPI1_FlushRX(void);
+/* */
+void SPI1_Transmit(uint8_t Val);
+/* */
+uint8_t SPI1_Receive(void);
+/* */
+void SPI1_TransferBuffer(uint8_t *tx, uint8_t *rx, uint16_t len);
 
 
 #endif /* DRIVERS_INC_SPI_H_ */

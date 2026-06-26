@@ -20,7 +20,7 @@ DEFINES
 
 /* Registers definition */
 #define CTRL_REG1     (0x10U)
-#define CTRL_REG1_VAL (0x5CU)  // 01010000  -> ODR1=50Hz, EN_LPFP=1 and LPFP_CFG=1 for bandwidth==ODR/20
+#define CTRL_REG1_VAL (0x5CU)  // 01011100  -> ODR1=50Hz, EN_LPFP=1 and LPFP_CFG=1 for bandwidth==ODR/20
 
 #define CTRL_REG2     (0x11U)
 #define CTRL_REG2_VAL (0x00U)  // No reboot, no one-shot
