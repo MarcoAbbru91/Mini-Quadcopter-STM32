@@ -109,8 +109,16 @@ DEFINES
 #define GPIOB_MODER_12_OFFSET (24U) // 2 bits
 /* GPIOB Mode Register PB13 offset */
 #define GPIOB_MODER_13_OFFSET (26U) // 2 bits
+/* GPIOB Mode Register PB14 offset */
+#define GPIOB_MODER_14_OFFSET (28U) // 2 bits
 /* GPIOB Mode Register PB15 offset */
 #define GPIOB_MODER_15_OFFSET (30U) // 2 bits
+
+#define GPIOB_PUPDR_OFFSET  (0x0CUL)
+#define GPIOB_PUPDR (* (volatile uint32_t *)(GPIOB_BASE_ADDRESS + GPIOB_PUPDR_OFFSET))
+/* */
+#define GPIOB_PUPDR_14_OFFSET (28UL)
+
 
 /* GPIOB AFRL - Alternate Function Low Register offset */
 #define GPIOB_AFRL_OFFSET         (0x20UL) /* GPIOB Alternate Function Register address */
@@ -131,6 +139,8 @@ DEFINES
 #define GPIOB_AFRH_9_OFFSET  (4UL) // 4 bits
 /* GPIOB Alternate Function Register PB13 offset (AFRH contains bits from 8 to 15, of port X) */
 #define GPIOB_AFRH_13_OFFSET  (20UL) // 4 bits
+/* GPIOB Alternate Function Register PB14 offset (AFRH contains bits from 8 to 15, of port X) */
+#define GPIOB_AFRH_14_OFFSET  (24UL) // 4 bits
 /* GPIOB Alternate Function Register PB15 offset (AFRH contains bits from 8 to 15, of port X) */
 #define GPIOB_AFRH_15_OFFSET  (28UL) // 4 bits
 
@@ -146,9 +156,10 @@ DEFINES
 #define GPIOB_OSPEEDR_12_OFFSET  (24UL) // 2 bits
 /* GPIOB Output Speed Register PB13 offset */
 #define GPIOB_OSPEEDR_13_OFFSET  (26UL) // 2 bits
+/* GPIOB Output Speed Register PB14 offset */
+#define GPIOB_OSPEEDR_14_OFFSET  (28UL) // 2 bits
 /* GPIOB Output Speed Register PB15 offset */
 #define GPIOB_OSPEEDR_15_OFFSET  (30UL) // 2 bits
-
 
 /* GPIOB Set/Reset Register offset */
 #define GPIOB_BSRR_OFFSET         (0x18UL) /* GPIOB Set/Reset Register address */

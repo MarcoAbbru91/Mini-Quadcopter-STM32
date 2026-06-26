@@ -22,7 +22,7 @@ DEFINES
 
 
 #define Dummy_Write   (0x00U)
-#define SPI_Read_Burst       (0x40U)
+//#define SPI_Read_Burst       (0x40U) // Currently not required (for these sensors).
 #define SPI_Read_Operation   (0x80U) // 10000000
 #define SPI_Write_Operation  (0x7FU) // 01111111 - keep MSB to 0 while keeping all other bits at 1 since it will be used with an "& operation"
 
@@ -99,11 +99,11 @@ DEFINES
 /* SPI1 DR - Data Register */
 #define SPI1_DR_OFFSET         (0x0CUL)/* SPI Data Register address */
 #define SPI1_DR_BASE_ADDRESS   (SPI1_BASE_ADDRESS + SPI1_DR_OFFSET)
-#define SPI1_DR           (* (volatile uint32_t *)(SPI1_DR_BASE_ADDRESS)) // typecast and dereference
+#define SPI1_DR           (* (volatile uint32_t *)(SPI1_DR_BASE_ADDRESS)) // Kepts 32 bits long altough the data buffer is 8-bits long for alignment reasons. Will be casted inside the code.
 /* SPI2 DR - Data Register */
 #define SPI2_DR_OFFSET         (0x0CUL)
 #define SPI2_DR_BASE_ADDRESS   (SPI2_BASE_ADDRESS + SPI2_DR_OFFSET)
-#define SPI2_DR           (* (volatile uint32_t *)(SPI2_DR_BASE_ADDRESS))
+#define SPI2_DR           (* (volatile uint32_t *)(SPI2_DR_BASE_ADDRESS)) // Kepts 32 bits long altough the data buffer is 8-bits long for alignment reasons. Will be casted inside the code.
 
 
 /****************************************************************************
@@ -113,22 +113,17 @@ FUNCTIONS PROTOTYPES
 /* Initialize SPI peripheral */
 void SPI_Init();
 
-void SPI_ClearRX(void);
+/* Flush RX buffer and clear OVR flag — Is called after CS_LOW before first transmit */
+void SPI2_FlushRX(void);
+/* SPI2 Transmit operation */
+void SPI2_Transmit(uint8_t Val);
+/* SPI2 Receive operation */
+uint8_t SPI2_Receive(uint8_t DummyRead);
+/* SPI2 Write operation to configure slave's registers */
+void SPI2_Write(uint8_t Addr, uint8_t Data);
+/* SPI2 Reads data from slave */
+uint8_t SPI2_Read(uint8_t SPI_Data_Read);
 
-/* SPI Full-Duplex Transmit operation */
-void SPI_FD_Transmit(uint8_t Val);
-/* SPI Full-Duplex Receive operation */
-uint8_t SPI_FD_Receive(uint8_t DummyRead);
-/* SPI Full-Duplex Write operation to configure slave's registers */
-void SPI_FD_Write(uint8_t Addr, uint8_t Data);
-/* SPI Full-Duplex Reads data from slave */
-uint8_t SPI_FD_Read(uint8_t SPI_Data_Read);
-
-
-/* SPI Half-Duplex Write operation */
-void SPI_HD_Write(uint8_t *data, uint16_t len);
-/* SPI Half-Duplex Reads data from slave */
-void SPI_HD_Read(uint8_t *data, uint16_t len);
 
 
 #endif /* DRIVERS_INC_SPI_H_ */

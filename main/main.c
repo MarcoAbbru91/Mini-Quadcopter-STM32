@@ -26,8 +26,7 @@
 #include "BLE.h"
 #include "hci.h"
 #include "LPS22HH.h"
-#include "LIS2MDL.h"
-#include "LSM6DSL.h"
+#include "LSM6DSR.h"
 
 
 
@@ -44,7 +43,6 @@ extern int connected;
 /* Define FPU base address */
 #define FPU_BASE_ADDRESS      (0xE000ED00UL)
 
-
 /* FPU CPACR - Coprocessor access control register offset */
 #define FPU_CPACR_OFFSET        (0x88UL)
 /* FPU CPACR Register address */
@@ -60,7 +58,6 @@ static inline void Enable_FPU(void)
 {
 	FPU_CPACR |= (3UL << FPU_CPACR2_CP10_OFFSET); // FPU Full Access
 	FPU_CPACR |= (3UL << FPU_CPACR2_CP11_OFFSET); // FPU Full Access
-
 }
 
 
@@ -73,37 +70,59 @@ int main(void)
 
 	/* Initialize Reset and Clock as well as Flash Memory Interface, required for PLL */
 	RCC_Init();
-	/* Initialize GPIOs */
-	GPIO_Init();
-	/* Enable Floating Point Unit */
-	Enable_FPU(); // Required for usage of "float" data type operations
-	/* Initialize General-Purpose Timer */
-	Timer_Init();
-	/* Initialize PWM-related registers */
-	PWM_Init();
-	/* Initialize SPI */
-	SPI_Init();
-
-	LPS22HH_Pressure_Init();
-
-	LIS2MDL_Magnetom_Init();
-
-	LSM6DSL_Imu_Init();
 	/* Initialize System Configuration Controller */
 	SysCfg_Init();
 	/* NVIC and EXTI initialization - Enable_Interrupts */
 	NVIC_EXTI_Init();
+	/* Enable Floating Point Unit */
+	Enable_FPU(); // Required for usage of "float" data type operations
+
+	__asm volatile ("cpsie i");
+
+	/* Initialize General-Purpose Timer */
+	Timer_Init();
+	/* Initialize GPIOs */
+	GPIO_Init();
+	/* Initialize PWM-related registers */
+	PWM_Init();
+	/* Initialize SPI */
+	SPI_Init();
+	/* Initialize pressure sensor */
+	LPS22HH_Pressure_Init();
+	/* Initialize IMU sensor */
+	LSM6DSR_Imu_Init();
 	/* Initialize BLE */
 	retVal = BLE_Init();
 	(void)retVal;/* TODO Add countermeasure for error return */
+
+
+
+	/****** TMP code for debugging purposes below to be removed ******/
+	//volatile uint8_t who;
+
+	//LSM6DSR_CS_LOW();
+	//SPI2_FlushRX();
+	//who = SPI2_Read(0x0F);
+	//LSM6DSR_CS_HIGH();
+
+	//LPS22HH_CS_LOW();
+	//SPI2_FlushRX();
+	//who = SPI2_Read(0x0F);
+	//LPS22HH_CS_HIGH();
+	/****** TMP code for debugging purposes above to be removed ******/
+	
 
 	/* Loop forever */
 	while(1)
 	{
 		if(SysTick_Counter != SysTick_Last)
 		{
-			SysTick_Last = SysTick_Counter;
-			LSM6DSL_Imu_Task(); // 1ms task
+			if((SysTick_Counter - SysTick_Last2ms) >= 2) // Check if 2ms are elapsed
+			{
+				SysTick_Last = SysTick_Counter;
+				LSM6DSR_Imu_Task(); // 2ms task
+			}
+
 
 			if((SysTick_Counter - SysTick_Last10ms) >= 10) // Check if 10ms are elapsed
 			{
@@ -124,4 +143,5 @@ int main(void)
 
 		}
 	}
+
 }

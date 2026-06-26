@@ -1,32 +1,26 @@
 # Mini-quadcopter with STM32
-Mini quadcopter with STM32 microcontroller, featuring bare-metal firmware in C-code (no HAL, no libraries - direct register programming) and control algorithm with Matlab/Simulink.
+Mini quadcopter with STM32 microcontroller, featuring fully bare-metal firmware in C-code (no HAL, no libraries - direct register programming) and control algorithm developed with Matlab/Simulink.
 
 🚧 Project Status: Work in Progress
 
-Initial analysis and setup
-- [x] Hardware platform analysis
-- [x] Bare-metal STM32 firmware structure
-- [x] Quadcopter plant model analysis
-
-Committed on main branch
-- [x] Clock and Reset (RCC) initial implementation (HSI Clock)
-- [x] General-Purpose Timer initial implementation (1 Channel on TIM4)
-- [x] PWM control on TIM4 channel
-- [x] SPI driver initial implementation
-- [x] GPIO initial implementation
-- [x] Clock source as PLL at 84 MHz
-- [x] Extend implementation for TIM4 and PWM. SysTick implementation
-- [x] Pressure, Magnetic and Accelerometer/IMU sensors firmware implementation (with related SPI and GPIO configuration)
-- [x] SPI code fixes
+Pushed on main branch
+- [x] Initial implementation of:
+      1. Clock and Reset (RCC) (HSI Clock)
+      2. General-Purpose Timer (1 Channel on TIM4)
+      3. PWM control on TIM4 channel
+      4. SPI driver
+      5. GPIOs
+- [x] Clock source as PLL at 84 MHz.
+- [x] SysTick implementation. Extend implementation for TIM4 and PWM (for remaining 3 channels).
+- [x] Pressure, Magnetic and Accelerometer/IMU sensors firmware implementation (with related SPI and GPIO configuration).
+- [X] PWM update/optimization (variable frequency PWM and switched to center-aligned)
+- [X] SPI code improvement after full testing of reading sensors' data
+- [X] PID controllers implementation and tuning
 
 In Progress
 - [ ] BLE module configuration
-- [ ] Custom makefile (indipendent from STM32CubeIDE internal makefile)
+- [ ] Integration of firmware and control algorithm (Simulink generated code)
 
 Upcoming / In pipeline
-- [ ] Make PWM have variable frequency (runtime duty control below)
-- [ ] Switch to center-aligned PWM (better for motors) 
-- [ ] Mutex/semaphore implementation since SPI is shared by multiple tasks 
-- [ ] PID controllers implementation
-- [ ] Integration of Firmware and control algorithm
-
+- [ ] Custom makefile (indipendent from STM32CubeIDE internal makefile)
+- [ ] HAL layer creation and firmware code cleanup

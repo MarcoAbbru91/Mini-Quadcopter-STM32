@@ -16,6 +16,11 @@
 DEFINES
 ****************************************************************************/
 
+#define MAX_DC  2099U  // Maximum duty cycle value. Half of initial "4200" value, since now with center-aligned mode the full PWM period is given by 0 → ARR → 0.  f_PWM = f_Timer / (2 × (ARR+1))
+
+
+#define PLL_CLOCK_SYS_FREQ  84000000
+
 /* Initialize CPU SysTick Timer */
 
 /* SysTick Timer Control and Status register base address */
@@ -24,6 +29,8 @@ DEFINES
 #define SYSTICK_CTRL_ENABLE_OFFSET  (0UL)
 /* SysTick Timer Control and Status register Systick Exception Request Enable offset */
 #define SYSTICK_CTRL_TICKINT_OFFSET  (1UL)
+/* SysTick Timer Control and Status register Clock Source offset */
+#define SYSTICK_CTRL_CLKSOURCE_OFFSET  (2UL)
 /* SysTick Timer Reload value register base address */
 #define SYSTICK_LOAD  (* (volatile uint32_t *)(0xE000E014UL))
 /* SysTick Timer Value register base address */
@@ -180,5 +187,9 @@ void Timer_Init();
 
 /* Initialize PWM */
 void PWM_Init();
+
+/* Update motor PWM at runtime */
+void PWM_Set(float PWM_Mot1, float PWM_Mot2, float PWM_Mot3, float PWM_Mot4);
+
 
 #endif /* FIRMWARE_INC_TIMER_H_ */

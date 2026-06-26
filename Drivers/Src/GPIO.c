@@ -10,7 +10,7 @@
 
 void GPIO_Init(void)
 {
-	/* Enable Clock for GPIOB peripheral - Needed for PWM on TIM4 (Ch1 to Ch4) as well as for BLE*/
+	/* Enable Clock for GPIOB peripheral - Needed for PWM on TIM4 (Ch1 to Ch4) as well as for the sensors */
 	RCC_AHB1 |= (0x01UL << RCC_AHB1_GPIOB_EN);
 
 	/* CS SPI pin for the BLE module */
@@ -55,7 +55,7 @@ void GPIO_Init(void)
 	GPIOB_MODER |=  (0x1UL << GPIOB_MODER_12_OFFSET); // General Purpose Output mode
 	/* Sets speed for PB12 */
 	GPIOB_OSPEEDR |=  (0x3UL << GPIOB_OSPEEDR_12_OFFSET); // Very High Speed
-	/* CLK SPI pin for the BLE module */
+	/* CLK SPI pin for the sensors */
 	/* Clear and Set port 13 to Alternate Function mode 13 */
 	GPIOB_MODER &= ~(0x3UL << GPIOB_MODER_13_OFFSET);
 	GPIOB_MODER |=  (0x2UL << GPIOB_MODER_13_OFFSET); // 2 = Alternate Function Mode
@@ -64,16 +64,26 @@ void GPIO_Init(void)
 	/* Clear and Set Alternate Function 13 for PB13 port */
 	GPIOB_AFRH &= ~(0xFUL << GPIOB_AFRH_13_OFFSET);
 	GPIOB_AFRH |=  (0x5UL << GPIOB_AFRH_13_OFFSET);
-	/* SDA SPI pin for the BLE module */
+	/* SDO SPI pin for the sensors */
+	/* Clear and Set port 14 to Alternate Function mode 14 */
+	GPIOB_MODER &= ~(0x3UL << GPIOB_MODER_14_OFFSET);
+	GPIOB_MODER |=  (0x2UL << GPIOB_MODER_14_OFFSET); // 2 = Alternate Function Mode
+	/* Sets Speed for PB14 */
+	GPIOB_OSPEEDR |=  (0x3UL << GPIOB_OSPEEDR_14_OFFSET); // Very High Speed
+	/* Clear and Set Alternate Function 14 for PB14 port */
+	GPIOB_AFRH &= ~(0xFUL << GPIOB_AFRH_14_OFFSET);
+	GPIOB_AFRH |=  (0x5UL << GPIOB_AFRH_14_OFFSET);
+	/* Clear bits for PB14 port */
+	GPIOB_PUPDR &= ~(0x3UL << GPIOB_PUPDR_14_OFFSET); // no pull-up/down
+	/* SDI SPI pin for the sensors */
 	/* Clear and Set port 15 to Alternate Function mode 15 */
 	GPIOB_MODER &= ~(0x3UL << GPIOB_MODER_15_OFFSET);
 	GPIOB_MODER |=  (0x2UL << GPIOB_MODER_15_OFFSET); // 2 = Alternate Function Mode
-	/* Sets Speed for PA15 */
+	/* Sets Speed for PB15 */
 	GPIOB_OSPEEDR |=  (0x3UL << GPIOB_OSPEEDR_15_OFFSET); // Very High Speed
 	/* Clear and Set Alternate Function 15 for PB15 port */
 	GPIOB_AFRH &= ~(0xFUL << GPIOB_AFRH_15_OFFSET);
 	GPIOB_AFRH |=  (0x5UL << GPIOB_AFRH_15_OFFSET);
-
 
 	/* Enable Clock for GPIOA peripheral - Needed for SCK, MOSI, MISO SPI pins for the three sensors */
 	RCC_AHB1 |= (0x01UL << RCC_AHB1_GPIOA_EN);
