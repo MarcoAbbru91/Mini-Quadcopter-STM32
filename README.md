@@ -16,9 +16,10 @@ Pushed on main branch
 - [X] PWM update/optimization (variable frequency PWM and switched to center-aligned)
 - [X] SPI code improvement after full testing of reading sensors' data
 - [X] PID controllers implementation and tuning
+- [X] BLE module configuration
 
 In Progress
-- [ ] BLE module configuration
+- [ ] Addition of magnetometer sensors in the system, together with its I2C driver
 - [ ] Integration of firmware and control algorithm (Simulink generated code)
 
 Upcoming / In pipeline
