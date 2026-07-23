@@ -19,19 +19,36 @@ Hover_FeedForward = sqrt((M*g)/(4*Kf)); % Hover feedforward scaling term
 
 %% Model Simulation %%
 
-% Sample time / Scheduler (2ms)
-Ts = 0.002;
+% Sample time / Scheduler (1ms)
+Ts = 0.001;
 % Simulation time
-t = 0:Ts:30;   % 30 seconds simulation
+T = 50;
+% Simulation steps
+t = 0:Ts:T;   % 30 seconds simulation
 
-% Desired altitude (Throttle_Desired_Altitude)
-Throttle_Desired_Altitude = timeseries(-1 * ones(size(t)), t);  % 1 meter
-% Desired Roll
-Desired_Roll = timeseries(zeros(size(t)), t);  % hold at 10   (only for tuning: timeseries((5*pi/180) * ones(size(t)), t))
-% Desired Pitch
-Desired_Pitch = timeseries(zeros(size(t)), t);  % hold at 5
+% Desired altitude (in meters)
+Throttle_Desired_Altitude = timeseries(single(-1 * ones(size(t))), t);  % 1 meter
+% Desired Roll (in radians)
+Desired_Roll_angle = timeseries(single(zeros(size(t))), t);  % rotate by 30°   (only for tuning: timeseries(single((30*pi/180) * ones(size(t))), t)
+% Desired Pitch (in radians)
+Desired_Pitch_angle = timeseries(single(zeros(size(t))), t);  % no rotation
 % Desired Yaw (in radians)
-Desired_Yaw = timeseries((5*pi/180) * ones(size(t)), t);  % no rotation
+Desired_Yaw_angle = timeseries(single(zeros(size(t))), t);  %timeseries(single((30*pi/180) * ones(size(t))), t);  % no rotation
+
+
+% PID controller's values for Yaw
+P_Yaw = 30; % 120 was better Proportional term
+D_Yaw = 70; % Derivative term
+% I term = 0
+
+% PID controller's values for thrust/altitude
+P_Thrust = 80; % was 68 Proportional term
+D_Thrust = 95; % Derivative term
+% I term = 0
+
+% AHRS estimator coefficient
+alfa_coeff = 0.95; % Allow a small correction from the accelerometer sensor
+
 % Start simulation
 simOut = sim("Quadcopter_Model.slx")
 
@@ -68,13 +85,39 @@ p = wb_data(:,1);
 q = wb_data(:,2);
 r = wb_data(:,3);
 
-figure;
-plot(t_out, vx, t_out, vy, t_out, vz);
-legend('Vx', 'Vy', 'Vz');
-title('Velocity');
-xlabel('Time');
-ylabel('Velocity [m/s]');
-grid on;
+%figure;
+%plot(t_out, z, 'LineWidth',1.5); 
+%hold on;
+%plot(t_out, simOut.Pos_est.Data, '--', 'LineWidth',1.5);
+%legend('real Pos Z','est Pos Z'); 
+%grid on; 
+%title('Real vs estimated altitude');
+%grid on;
+
+%figure;
+%plot(t_out, vz, 'LineWidth',1.5); 
+%hold on;
+%plot(t_out, simOut.Vel_est.Data, '--', 'LineWidth',1.5);
+%legend('real Vel Z','est Vel Z'); 
+%grid on; 
+%title('Real vs estimated velocity');
+%grid on;
+
+%figure;
+%plot(t_out, z, 'LineWidth',1.5); 
+%hold on;
+%plot(t_out, simOut.measZpos.Data, 'LineWidth',1.5);
+%legend('real Z','raw baro'); 
+%grid on; 
+%title('Real altitude vs raw barometer');
+
+%a_true = gradient(vz, t_out);     % d(real vz)/dt
+%figure; 
+%plot(t_out, a_true, 'LineWidth',1.5); 
+%hold on;
+%plot(t_out, simOut.AccelZreal.Data, 'LineWidth',1.0);
+%legend('true accel (d vz/dt)','Accel\_Z\_real'); 
+%grid on;
 
 figure;
 plot(t_out, x, t_out, y, t_out, z);
@@ -85,11 +128,19 @@ ylabel('Position [m]');
 grid on;
 
 figure;
+plot(t_out, vx, t_out, vy, t_out, vz);
+legend('Vx', 'Vy', 'Vz');
+title('Velocity');
+xlabel('Time');
+ylabel('Velocity [m/s]');
+grid on;
+
+figure;
 plot(t_out, roll, t_out, pitch, t_out, yaw);
 legend('Roll','Pitch','Yaw');
 title('Attitude (RPY)');
 xlabel('Time');
-ylabel('Angle');
+ylabel('Angle [rad]');
 grid on;
 
 figure;
