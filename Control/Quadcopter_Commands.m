@@ -51,12 +51,12 @@ D_Roll = 15; % 15 Derivative term
 % I term = 0
 
 % PID controller's values for Pitch
-P_Pitch = 30; % 25 Proportional term
+P_Pitch = 30; % 30 Proportional term
 D_Pitch = 15; % 15 Derivative term
 % I term = 0
 
 % PID controller's values for Yaw
-P_Yaw = 220; % 180 Proportional term
+P_Yaw = 220; % 220  180 Proportional term
 D_Yaw = 70; % 70 Derivative term
 % I term = 0
 
@@ -66,7 +66,7 @@ D_Thrust = 105; % Derivative term
 % I term = 0
 
 % AHRS estimator coefficient
-alfa_coeff = 1; % High alfa means more gyro reliance, but allows slower correction of long-term gyro drift from the accelerometer sensor
+alfa_coeff = 0.98; % High alfa means more gyro reliance, but allows slower correction of long-term gyro drift from the accelerometer sensor
 
 % Start simulation
 simOut = sim("Quadcopter_Model.slx")

@@ -32,7 +32,7 @@ load_system("Quadcopter_Model");
 % port 4 = Roll
 % port 5 = Pitch
 % port 6 = Yaw
-io(1) = linio(sprintf('%s/Zero-Order\nHold9', model), 1, 'openinput');  % Thrust -> plant in3  (breaks the loop + injects) (sprintf is needed because of the 'new line character'
+io(1) = linio(sprintf('%s/Zero-Order\nHold9', model), 1, 'openinput');  % Thrust -> plant in3  (breaks the loop + injects) (sprintf is needed because of the 'new line character')
 io(2) = linio('Quadcopter_Model/Constant2', 1, 'input'); % Roll  -> plant in4 (here the input to the plant is the constant block)
 io(3) = linio('Quadcopter_Model/Constant',  1, 'input'); % Pitch -> plant in5 (here the input to the plant is the constant block)
 io(4) = linio('Quadcopter_Model/Constant1', 1, 'input'); % Yaw   -> plant in6 (here the input to the plant is the constant block)
