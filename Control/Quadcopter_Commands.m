@@ -28,20 +28,68 @@ t = 0:Ts:T;   % 30 seconds simulation
 
 % Desired altitude (in meters)
 Throttle_Desired_Altitude = timeseries(single(-3 * ones(size(t))), t);  % 1 meter
+
+
 % Desired Roll (in radians)
 %Desired_Roll_angle = timeseries(single((30*pi/180) * ones(size(t))), t);  % rotate by 30°   (only for tuning: timeseries(single((30*pi/180) * ones(size(t))), t)
-Roll_pulse = single(zeros(size(t)));               % 0° everywhere by default
-Roll_pulse(t >= 12 & t <= 22) = single(20*pi/180);   % 20° only from t=12s to t=22s
+
+%Roll_pulse = single(zeros(size(t)));               % 0° everywhere by default
+%Roll_pulse(t >= 12 & t <= 22) = single(20*pi/180);   % 20° only from t=12s to t=22s
+%Desired_Roll_angle = timeseries(Roll_pulse, t);
+
+Roll_pulse = single(zeros(size(t)));
+% ramp up 12→14
+idx_up = t >= 12 & t <= 14;
+Roll_pulse(idx_up) = single((t(idx_up)-12)/(14-12)) * single(20*pi/180);
+% hold 14→20
+idx_hold = t > 14 & t <= 20;
+Roll_pulse(idx_hold) = single(20*pi/180);
+% ramp down 20→22
+idx_down = t > 20 & t <= 22;
+Roll_pulse(idx_down) = single((22-t(idx_down))/(22-20)) * single(20*pi/180);
+
 Desired_Roll_angle = timeseries(Roll_pulse, t);
+
+
 % Desired Pitch (in radians)
 %Desired_Pitch_angle = timeseries(single(zeros(size(t))), t);  % no rotation
-Pitch_pulse = single(zeros(size(t)));               % 0° everywhere by default
-Pitch_pulse(t >= 12 & t <= 22) = single(20*pi/180);   % 20° only from t=12s to t=22s
+
+%Pitch_pulse = single(zeros(size(t)));               % 0° everywhere by default
+%Pitch_pulse(t >= 12 & t <= 22) = single(20*pi/180);   % 20° only from t=12s to t=22s
+%Desired_Pitch_angle = timeseries(Pitch_pulse, t);
+
+Pitch_pulse = single(zeros(size(t)));
+% ramp up 12→14
+idx_up = t >= 12 & t <= 14;
+Pitch_pulse(idx_up) = single((t(idx_up)-12)/(14-12)) * single(20*pi/180);
+% hold 14→20
+idx_hold = t > 14 & t <= 20;
+Pitch_pulse(idx_hold) = single(20*pi/180);
+% ramp down 20→22
+idx_down = t > 20 & t <= 22;
+Pitch_pulse(idx_down) = single((22-t(idx_down))/(22-20)) * single(20*pi/180);
+
 Desired_Pitch_angle = timeseries(Pitch_pulse, t);
+
+
 % Desired Yaw (in radians)
 %timeseries(single((30*pi/180) * ones(size(t))), t);
-Yaw_pulse = single(zeros(size(t)));               % 0° everywhere by default
-Yaw_pulse(t >= 12 & t <= 22) = single(20*pi/180);   % 20° only from t=12s to t=22s
+
+%Yaw_pulse = single(zeros(size(t)));               % 0° everywhere by default
+%Yaw_pulse(t >= 12 & t <= 22) = single(20*pi/180);   % 20° only from t=12s to t=22s
+%Desired_Yaw_angle = timeseries(Yaw_pulse, t);
+
+Yaw_pulse = single(zeros(size(t)));
+% ramp up 12→14
+idx_up = t >= 12 & t <= 14;
+Yaw_pulse(idx_up) = single((t(idx_up)-12)/(14-12)) * single(20*pi/180);
+% hold 14→20
+idx_hold = t > 14 & t <= 20;
+Yaw_pulse(idx_hold) = single(20*pi/180);
+% ramp down 20→22
+idx_down = t > 20 & t <= 22;
+Yaw_pulse(idx_down) = single((22-t(idx_down))/(22-20)) * single(20*pi/180);
+
 Desired_Yaw_angle = timeseries(Yaw_pulse, t);
 
 
