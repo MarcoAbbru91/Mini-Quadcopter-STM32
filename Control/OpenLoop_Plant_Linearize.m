@@ -1,4 +1,15 @@
-% Linearize quadcopter plant around hover
+% Linearize quadcopter OPEN-LOOP (!) plant around hover
+% After obtaining the Transfer Functions for roll, pitch, yaw and
+% altitude, and consequently their poles. Goal is to finally compute the
+% gains for the respective PID controllers.
+
+% Prior steps to be done on the Simulink model: make the plant open-loop,
+% i.e. disconnect the roll, pitch, yaw, thrust connections from the
+% controller (connect at most a constant block to them). 
+% However, keep drag and gravity connected: Drag contributes the real pole 
+% (the eventual (s+a) term) in G_z = k/(s(s+a)), and Gravity sets the hover 
+% operating point (thrust trims against it)
+
 
 % Clean-up
 clear;
@@ -12,6 +23,7 @@ load_system("Quadcopter_Model");
 
 
 % Linearization input/output points
+% 'linio' always references a block's output port (the signal leaving the block)
 
 % Plant inputs:
 % port 1 = Drag
@@ -20,10 +32,10 @@ load_system("Quadcopter_Model");
 % port 4 = Roll
 % port 5 = Pitch
 % port 6 = Yaw
-io(1) = linio("Quadcopter_Model/Thrust", 1,"input");   % Thrust
-io(2) = linio("Quadcopter_Model/Roll",   1,"input");   % Roll
-io(3) = linio("Quadcopter_Model/Pitch",  1,"input");   % Pitch
-io(4) = linio("Quadcopter_Model/Yaw",    1,"input");   % Yaw
+io(1) = linio(sprintf('%s/Zero-Order\nHold9', model), 1, 'openinput');  % Thrust -> plant in3  (breaks the loop + injects) (sprintf is needed because of the 'new line character')
+io(2) = linio('Quadcopter_Model/Constant2', 1, 'input'); % Roll  -> plant in4 (here the input to the plant is the constant block)
+io(3) = linio('Quadcopter_Model/Constant',  1, 'input'); % Pitch -> plant in5 (here the input to the plant is the constant block)
+io(4) = linio('Quadcopter_Model/Constant1', 1, 'input'); % Yaw   -> plant in6 (here the input to the plant is the constant block)
 
 % Plant outputs:
 % port 1 = Ve
@@ -40,7 +52,9 @@ io(8) = linio("Quadcopter_Model/Quadcopter Plant", 6,"output");  % wb
 op = operpoint(model);
 
 % Linearize
-linsys = linearize(model,io,op);
+opt = linearizeOptions('SampleTime', 0, 'RateConversionMethod', 'tustin');   % 0 = continuous/s-domain (with discretized plant I was getting two damped complex poles for the G(z) TF). 
+                                                                             % "tustin" needed to avoid error "could not be linearized due to a discrete pole at z = 0 that is being converted to the continuous domain using the 'zoh' rate conversion method"
+linsys = linearize(model, io, op, opt);
 
 % Extract state-space matrices
 [A,B,C,D] = ssdata(linsys);
