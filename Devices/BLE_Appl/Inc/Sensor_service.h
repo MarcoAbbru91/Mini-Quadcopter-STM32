@@ -22,7 +22,7 @@
 
 
 /****************************************************************************
-Defines
+DEFINES
 ****************************************************************************/
 #define W2ST_CONSOLE_MAX_CHAR_LEN 20 // Define the Max dimesion of the Bluetooth characteristics for each packet used for Console Service
 
@@ -60,8 +60,9 @@ do {\
 
 
 /****************************************************************************
-Global variables
+GLOBAL VARIABLES
 ****************************************************************************/
+extern volatile uint32_t HCI_ProcessEvent;
 extern uint8_t bdaddr[6];
 
 typedef struct
@@ -74,7 +75,7 @@ typedef struct
 
 
 /****************************************************************************
-Function prototypes
+FUNCTION PROTOTYPES
 ****************************************************************************/
 extern tBleStatus Add_ConfigW2ST_Service(void);
 extern tBleStatus Add_ConsoleW2ST_Service(void);

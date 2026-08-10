@@ -10,9 +10,9 @@
 
 
 #include <stdint.h>
-//#include "Timer.h"
+#include "Timer.h"
 #include "SPI.h"
-#include "BLE.h"
+#include "Sensor_service.h"
 
 
 
@@ -80,6 +80,12 @@ DEFINES
 /* EXTI PR4 offset */
 #define EXTI_PR_PR4_OFFSET  (4UL)
 
+
+
+/****************************************************************************
+GLOBAL VARIABLES
+****************************************************************************/
+extern volatile uint32_t SysTick_Counter;
 
 
 

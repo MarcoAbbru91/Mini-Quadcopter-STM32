@@ -27,19 +27,20 @@
 #include "hci.h"
 #include "LPS22HH.h"
 #include "LSM6DSR.h"
+#include "HAL_Devices.h"
 
 
 
 /****************************************************************************
 GLOBAL VARIABLES
 ****************************************************************************/
-extern volatile uint32_t SysTick_Counter;
+extern uint8_t set_connectable; // TODO move it to a .h file??
+extern int connected; // TODO move it to a .h file??
 
 
-extern uint8_t set_connectable;
-extern int connected;
-
-
+/****************************************************************************
+DEFINES
+****************************************************************************/
 /* Define FPU base address */
 #define FPU_BASE_ADDRESS      (0xE000ED00UL)
 
@@ -54,6 +55,9 @@ extern int connected;
 #define FPU_CPACR2_CP11_OFFSET  (22UL) // 2 bits
 
 
+
+
+
 static inline void Enable_FPU(void)
 {
 	FPU_CPACR |= (3UL << FPU_CPACR2_CP10_OFFSET); // FPU Full Access
@@ -65,8 +69,11 @@ static inline void Enable_FPU(void)
 int main(void)
 {
 	uint8_t retVal;
-	static uint32_t SysTick_Last    = 0;
-	static uint32_t SysTick_Last10ms = 0;
+	static uint32_t SysTick_Last     = 0U;
+	static uint32_t SysTick_Last2ms  = 0U;
+	static uint32_t SysTick_Last10ms = 0U;
+	static uint32_t SysTick_Last20ms = 0U;
+
 
 	/* Initialize Reset and Clock as well as Flash Memory Interface, required for PLL */
 	RCC_Init();
@@ -90,7 +97,9 @@ int main(void)
 	/* Initialize pressure sensor */
 	LPS22HH_Pressure_Init();
 	/* Initialize IMU sensor */
-	LSM6DSR_Imu_Init();
+	LSM6DSR_IMU_Init();
+	/* Initialize Simulink (flight) controller */
+	//Controller_initialize();
 	/* Initialize BLE */
 	retVal = BLE_Init();
 	(void)retVal;/* TODO Add countermeasure for error return */
@@ -98,47 +107,76 @@ int main(void)
 
 
 	/****** TMP code for debugging purposes below to be removed ******/
-	//volatile uint8_t who;
+	//volatile uint8_t who1, who2;
 
 	//LSM6DSR_CS_LOW();
 	//SPI2_FlushRX();
-	//who = SPI2_Read(0x0F);
+	//who1 = SPI2_Read(0x0F); // who_I_am register address
+	//(void)who1;
 	//LSM6DSR_CS_HIGH();
 
 	//LPS22HH_CS_LOW();
 	//SPI2_FlushRX();
-	//who = SPI2_Read(0x0F);
+	//who2 = SPI2_Read(0x0F); // who_I_am register address
+	//(void)who2;
 	//LPS22HH_CS_HIGH();
 	/****** TMP code for debugging purposes above to be removed ******/
-	
 
 	/* Loop forever */
 	while(1)
 	{
 		if(SysTick_Counter != SysTick_Last)
 		{
-				SysTick_Last = SysTick_Counter;
-				LSM6DSR_Imu_Task(); // 1ms task
+			SysTick_Last = SysTick_Counter;
 
+			if((SysTick_Counter - SysTick_Last2ms) >= 2) // Check if 2ms are elapsed
+			{
+				/* The 2ms SysTick will be updated later one, after the last "2ms if-case" used for the flight controller */
+				
+				/* Gyro and accelerometer are used for the fast stabilization dynamics. Therefore 2ms is a reasonable scheduling time (they can change quickly when the drone rotates) */
+				LSM6DSR_IMU_Task(&IMU_raw); // 2ms task
+			}
+
+			if((SysTick_Counter - SysTick_Last20ms) >= 20) // Check if 20ms are elapsed
+			{
+				SysTick_Last20ms = SysTick_Counter;
+
+				/* The magnetometer mainly provides a slow absolute heading reference for yaw. 
+				   20ms is a reasonable scheduling time, since the Earth’s magnetic field does not change rapidly. Furthermore, the magnetometer itself usually has lower bandwidth than IMU's one */
+				//LIS2MDL_Magneto_Task(&Magneto_raw); // 20ms task
+
+				LPS22HH_Pressure_Task(&Pressure_raw); // 20ms task
+			}
 
 			if((SysTick_Counter - SysTick_Last10ms) >= 10) // Check if 10ms are elapsed
 			{
 				SysTick_Last10ms = SysTick_Counter;
-				//////////////////////////* Processa BLE sia se c'è stato un IRQ, sia se il pin è già alto */
-				/* Problem was happening for which BLE_IRQ_Counter was never incrementing, cause I was only checking for a rising edge of the IRQ pin, which was however already HIGH since the BLE boot */
-				if (HCI_ProcessEvent) {
-					HCI_ProcessEvent = 0;
 
-					HCI_Process(); // empties the queue and calls HCI_Event_CB - 5ms task
+				if (HCI_ProcessEvent)
+				{
+					HCI_ProcessEvent = 0;
+					HCI_Process(); // 10ms task - Empties the queue and calls HCI_Event_CB
 				}
-				if (set_connectable) {
-					 //Now update the BLE advertize data and make the board connectable
+				if (set_connectable)
+				{
+					//Now update the BLE advertise data and make the board connectable
 					setConnectable();
 					set_connectable = FALSE;
 				}
 			}
 
+			if((SysTick_Counter - SysTick_Last2ms) >= 2) // Check if 2ms are elapsed
+			{
+				SysTick_Last2ms = SysTick_Counter;
+
+				/* Update controller inputs coming from sensors and BLE */
+				Update_Controller_Inputs(&IMU_raw, &Pressure_raw);
+				/* Schedule/Execute the flight controller */
+				//Controller_step();
+				/* Update motor inputs */
+				Update_Motor_Inputs();
+				PWM_Set(&PWM_Mot1, &PWM_Mot2, &PWM_Mot3, &PWM_Mot4);
+			}
 		}
 	}
-
 }

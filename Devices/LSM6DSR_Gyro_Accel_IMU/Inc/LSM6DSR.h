@@ -60,19 +60,29 @@ DEFINES
 /****************************************************************************
 GLOBAL VARIABLES
 ****************************************************************************/
-
-//#define NULL         ((void *)0)
 typedef struct
 {
-	int16_t Gyroscope_x_dps_raw;
-	int16_t Gyroscope_y_dps_raw;
-	int16_t Gyroscope_z_dps_raw;
-	int16_t Accelerom_x_dps_raw;
-	int16_t Accelerom_y_dps_raw;
-	int16_t Accelerom_z_dps_raw;
+	int16_t Gyroscope_x_raw;
+	int16_t Gyroscope_y_raw;
+	int16_t Gyroscope_z_raw;
+	int16_t Accelerom_x_raw;
+	int16_t Accelerom_y_raw;
+	int16_t Accelerom_z_raw;
 } IMU_raw_t;
 
-IMU_raw_t IMU_raw;
+extern IMU_raw_t IMU_raw;
+
+typedef struct
+{
+	float Gyroscope_x_radps;
+	float Gyroscope_y_radps;
+	float Gyroscope_z_radps;
+	float Accelerom_x_mps2;
+	float Accelerom_y_mps2;
+	float Accelerom_z_mps2;
+} IMU_data_conv_t;
+
+extern IMU_data_conv_t IMU_converted;
 
 
 /****************************************************************************
@@ -81,11 +91,13 @@ FUNCTIONS PROTOTYPES
 
 
 /* IMU Init function */
-void LSM6DSR_Imu_Init(void);
+void LSM6DSR_IMU_Init(void);
 
 /* IMU periodic task */
-void LSM6DSR_Imu_Task(void);
+void LSM6DSR_IMU_Task(const IMU_raw_t *Imu_raw);
 
+
+void IMU_Data_Conversion(const IMU_raw_t *IMU_raw, IMU_data_conv_t *IMU_converted); // "inline" keyword kept only in .c file, since compilation uses "-std=gnu11", and consequently the C99/C11 inline rules apply
 
 
 #endif /* DEVICES_LSM6DSR_ACCEL_IMU_INC_LSM6DSR_H_ */

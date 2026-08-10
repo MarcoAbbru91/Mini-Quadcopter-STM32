@@ -10,7 +10,7 @@
 
 
 /****************************************************************************
-Global variables
+GLOBAL VARIABLES
 ****************************************************************************/
 static uint16_t HWServW2STHandle;
 static uint16_t EnvironmentalCharHandle;
@@ -26,6 +26,8 @@ static uint16_t ConsoleW2STHandle;
 static uint16_t TermCharHandle;
 static uint16_t StdErrCharHandle;
 
+
+volatile uint32_t HCI_ProcessEvent = 0UL;
 uint8_t bdaddr[6] = {0};
 
 
@@ -35,7 +37,7 @@ uint8_t set_connectable = TRUE;
 
 
 /****************************************************************************
-Function prototypes
+FUNCTION PROTOTYPES
 ****************************************************************************/
 static void GAP_ConnectionComplete_CB(uint8_t addr[6], uint16_t handle);
 static void GAP_DisconnectionComplete_CB(void);

@@ -17,11 +17,6 @@
 DEFINES
 ****************************************************************************/
 
-/* Redefinition for portability. In other files take for granted that communication is full-duplex */
-//#define SPI_Write()   SPI_FD_Write()
-//#define SPI_Read()    SPI_FD_Read()
-
-
 #define Dummy_Write   (0x00U)
 //#define SPI_Read_Burst       (0x40U) // Currently not required (for these sensors).
 #define SPI_Read_Operation   (0x80U) // 10000000
@@ -114,7 +109,7 @@ FUNCTIONS PROTOTYPES
 /* Initialize SPI peripheral */
 void SPI_Init();
 
-/******** SPI2 (Sensors) functions ********/
+/******** SPI2 (IMU & pressure sensors) functions ********/
 /* Flush RX buffer and clear OVR flag — Is called after CS_LOW before first transmit */
 void SPI2_FlushRX(void);
 /* SPI2 Transmit operation */
@@ -135,7 +130,7 @@ void SPI1_Transmit(uint8_t Val);
 /* */
 uint8_t SPI1_Receive(void);
 /* */
-void SPI1_TransferBuffer(uint8_t *tx, uint8_t *rx, uint16_t len);
+void SPI1_TransferBuffer(uint8_t *Tx, uint8_t *Rx, uint16_t len);
 
 
 #endif /* DRIVERS_INC_SPI_H_ */

@@ -101,7 +101,7 @@ void SPI_Init()
 /******** SPI2 functions ********/
 
 /* Flush any stale data from the Rx buffer and clear OVR flag.*/
-inline void SPI2_FlushRX(void)
+void SPI2_FlushRX(void)
 {
 	volatile uint8_t dummy;
 	while(SPI2_SR & (1UL << SPI_SR_RXNE_OFFSET))
@@ -113,7 +113,7 @@ inline void SPI2_FlushRX(void)
 	(void)dummy; // to avoid warning of variable set but not used
 }
 
-/* Full-Duplex Transmit function for sensors */
+/* Full-Duplex Transmit function for IMU and pressure sensors */
 void SPI2_Transmit(uint8_t Val)
 {
 	//uint32_t Timeout = 10000; // TODO: To create a timeout timer of approx. 1ms, considering Clock=84MHz and below while-loop's iteration taking around 5-10 clock cycles.
@@ -129,7 +129,7 @@ void SPI2_Transmit(uint8_t Val)
 	*(volatile uint8_t *)&SPI2_DR = Val; // Writes the SPI Data buffer
 }
 
-/* Full-Duplex Receive function for sensors */
+/* Full-Duplex Receive function for IMU and pressure sensors */
 uint8_t SPI2_Receive(uint8_t DummyRead)
 {
 	uint8_t RetVal_Data;
@@ -156,7 +156,7 @@ uint8_t SPI2_Receive(uint8_t DummyRead)
 }
 
 
-/* SPI Write operation for sensors, usually called only during init phase to configure slave's registers */
+/* SPI Write operation for IMU and pressure sensors, usually called only during init phase to configure slave's registers */
 void SPI2_Write(uint8_t Addr, uint8_t Data)
 {
 	SPI2_Transmit(Addr & SPI_Write_Operation); // Send register's address, keeping MSB=0 (write operation)
@@ -166,7 +166,7 @@ void SPI2_Write(uint8_t Addr, uint8_t Data)
 	SPI2_Receive((uint8_t)1U); // Dummy read operation (discarded) to empty RX buffer
 }
 
-/* SPI Read operation for sensors, to read runtime data from slave */
+/* SPI Read operation for IMU and pressure sensors, to read runtime data from slave */
 uint8_t SPI2_Read(uint8_t SPI_Data_Read)
 {
 	uint8_t RetVal_Data;
@@ -184,7 +184,7 @@ uint8_t SPI2_Read(uint8_t SPI_Data_Read)
 /******** SPI1 functions ********/
 
 /* Flush any stale data from SPI1 RX buffer */
-inline void SPI1_FlushRX(void)
+void SPI1_FlushRX(void)
 {
     volatile uint8_t dummy;
     while(SPI1_SR & (1UL << SPI_SR_RXNE_OFFSET))
@@ -218,17 +218,17 @@ uint8_t SPI1_Receive(void)
     return (*(volatile uint8_t *)&SPI1_DR);
 }
 
-/* SPI1 full-duplex: manda tx[i] e riceve rx[i] simultaneamente */
-void SPI1_TransferBuffer(uint8_t *tx, uint8_t *rx, uint16_t len)
+/* SPI1 full-duplex: Sends tx[i] and receives rx[i] simultaneously */
+void SPI1_TransferBuffer(uint8_t *Tx, uint8_t *Rx, uint16_t len)
 {
     for(uint16_t i = 0; i < len; i++)
     {
-        /* Aspetta TX pronto */
+        /* Waits for TX to be ready */
         while(!(SPI1_SR & (1UL << SPI_SR_TXE_OFFSET)));
-        *(volatile uint8_t *)&SPI1_DR = tx[i];
-        /* Aspetta RX pronto */
+        *(volatile uint8_t *)&SPI1_DR = Tx[i];
+        /* Waits for RX to be ready */
         while(!(SPI1_SR & (1UL << SPI_SR_RXNE_OFFSET)));
-        rx[i] = *(volatile uint8_t *)&SPI1_DR;
+        Rx[i] = *(volatile uint8_t *)&SPI1_DR;
     }
     while(SPI1_SR & (1UL << SPI_SR_BSY_OFFSET));
 }

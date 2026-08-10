@@ -174,6 +174,15 @@ DEFINES
 
 
 
+/****************************************************************************
+GLOBAL VARIABLES
+****************************************************************************/
+extern float PWM_Mot1;
+extern float PWM_Mot2;
+extern float PWM_Mot3;
+extern float PWM_Mot4;
+
+
 
 /****************************************************************************
 FUNCTIONS PROTOTYPES
@@ -189,7 +198,7 @@ void Timer_Init();
 void PWM_Init();
 
 /* Update motor PWM at runtime */
-void PWM_Set(float PWM_Mot1, float PWM_Mot2, float PWM_Mot3, float PWM_Mot4);
+void PWM_Set(float *PWM_Mot1, float *PWM_Mot2, float *PWM_Mot3, float *PWM_Mot4);
 
 
 #endif /* FIRMWARE_INC_TIMER_H_ */

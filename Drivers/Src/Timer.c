@@ -8,7 +8,14 @@
 #include "Timer.h"
 
 
-extern volatile uint32_t SysTick_Counter;
+
+/****************************************************************************
+GLOBAL VARIABLES
+****************************************************************************/
+float PWM_Mot1 = 0.0f;
+float PWM_Mot2 = 0.0f;
+float PWM_Mot3 = 0.0f;
+float PWM_Mot4 = 0.0f;
 
 
 
@@ -122,20 +129,21 @@ void PWM_Init()
 	TIM4_CR1 |= (0x01UL << TIM4_CR1_CEN_OFFSET); // Enabled
 }
 
-void PWM_Set(float PWM_Mot1, float PWM_Mot2, float PWM_Mot3, float PWM_Mot4)
+void PWM_Set(float *PWM_Mot1, float *PWM_Mot2, float *PWM_Mot3, float *PWM_Mot4)
 {
-	if(PWM_Mot1 > 100.0f) PWM_Mot1 = 100.0f;
-	if(PWM_Mot1 < 0.0f)   PWM_Mot1 = 0.0f;
-	if(PWM_Mot2 > 100.0f) PWM_Mot2 = 100.0f;
-	if(PWM_Mot2 < 0.0f)   PWM_Mot2 = 0.0f;
-	if(PWM_Mot3 > 100.0f) PWM_Mot3 = 100.0f;
-	if(PWM_Mot3 < 0.0f)   PWM_Mot3 = 0.0f;
-	if(PWM_Mot4 > 100.0f) PWM_Mot4 = 100.0f;
-	if(PWM_Mot4 < 0.0f)   PWM_Mot4 = 0.0f;
+	//// TODO NON QUI QUESTA FUNZIONE
+	if(*PWM_Mot1 > 100.0f) *PWM_Mot1 = 100.0f;
+	if(*PWM_Mot1 < 0.0f)   *PWM_Mot1 = 0.0f;
+	if(*PWM_Mot2 > 100.0f) *PWM_Mot2 = 100.0f;
+	if(*PWM_Mot2 < 0.0f)   *PWM_Mot2 = 0.0f;
+	if(*PWM_Mot3 > 100.0f) *PWM_Mot3 = 100.0f;
+	if(*PWM_Mot3 < 0.0f)   *PWM_Mot3 = 0.0f;
+	if(*PWM_Mot4 > 100.0f) *PWM_Mot4 = 100.0f;
+	if(*PWM_Mot4 < 0.0f)   *PWM_Mot4 = 0.0f;
 
-	TIM4_CCR1 = (uint16_t)((MAX_DC * PWM_Mot1) / 100.0f); // PWM_Mot : 100 = DC(CCRx) : MAX_DC
-	TIM4_CCR2 = (uint16_t)((MAX_DC * PWM_Mot2) / 100.0f); // PWM_Mot : 100 = DC(CCRx) : MAX_DC
-	TIM4_CCR3 = (uint16_t)((MAX_DC * PWM_Mot3) / 100.0f); // PWM_Mot : 100 = DC(CCRx) : MAX_DC
-	TIM4_CCR4 = (uint16_t)((MAX_DC * PWM_Mot4) / 100.0f); // PWM_Mot : 100 = DC(CCRx) : MAX_DC
+	TIM4_CCR1 = (uint16_t)((*PWM_Mot1 * MAX_DC) / 100.0f); // PWM_Mot : 100 = DC(CCRx) : MAX_DC
+	TIM4_CCR2 = (uint16_t)((*PWM_Mot2 * MAX_DC) / 100.0f); // PWM_Mot : 100 = DC(CCRx) : MAX_DC
+	TIM4_CCR3 = (uint16_t)((*PWM_Mot3 * MAX_DC) / 100.0f); // PWM_Mot : 100 = DC(CCRx) : MAX_DC
+	TIM4_CCR4 = (uint16_t)((*PWM_Mot4 * MAX_DC) / 100.0f); // PWM_Mot : 100 = DC(CCRx) : MAX_DC
 
 }

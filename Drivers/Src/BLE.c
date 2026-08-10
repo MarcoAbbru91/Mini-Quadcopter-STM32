@@ -17,8 +17,6 @@ uint16_t service_handle;
 uint16_t dev_name_char_handle;
 uint16_t appearance_char_handle;
 
-volatile uint32_t HCI_ProcessEvent=0;
-
 
 
 
@@ -71,7 +69,7 @@ uint32_t BlueNRG_SPI_Read_All(uint8_t *buffer, uint8_t buff_size)
 
 
 	BLE_CS_LOW();
-	SPI1_TransferBuffer(header_master, header_slave, 5);  // la tua funzione
+	SPI1_TransferBuffer(header_master, header_slave, 5);
 
 	if(header_slave[0] == 0x02)
 	{
@@ -175,10 +173,10 @@ uint8_t BLE_Init(void)
 	ret = aci_gatt_init();
 	ret = aci_gap_init_IDB05A1(GAP_PERIPHERAL_ROLE_IDB05A1, 0, 0x07,
 								&service_handle, &dev_name_char_handle, &appearance_char_handle);
-	ret = hci_le_set_random_address(bdaddr); // MAC random valido
+	ret = hci_le_set_random_address(bdaddr); // Valid MAC random
 
 	ret = aci_gatt_update_char_value(service_handle, dev_name_char_handle, 0,
-									7/*strlen(BoardName)*/, (uint8_t *)BoardName); // Board name
+									7/* strlen(BoardName) */, (uint8_t *)BoardName); // Board name
 	ret = aci_gap_set_auth_requirement(MITM_PROTECTION_REQUIRED,
 										OOB_AUTH_DATA_ABSENT,
 										NULL, 7, 16,
