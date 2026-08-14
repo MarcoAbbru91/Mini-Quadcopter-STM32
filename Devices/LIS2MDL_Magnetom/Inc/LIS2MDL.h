@@ -1,7 +1,7 @@
 /*
  * LIS2MDL.h
  *
- *  Created on: 12 mar 2026
+ *  Created on: Jul 30, 2026
  *      Author: marco91
  */
 
@@ -10,19 +10,23 @@
 
 
 #include "GPIO.h"
-#include "SPI.h"
+#include "I2C.h"
 
 
 /****************************************************************************
 DEFINES
 ****************************************************************************/
 
+/* I2C magnetometer (slave) default address */
+#define LIS2MDL_I2C_ADDR  (0x1EU) // Written on the back of the sensor's PCB
+
+
 /* Registers definition */
 #define CFG_REG_A      (0x60U)
-#define CFG_REG_A_VAL  (0x8CU) // 10001100 -> ODR=50Hz, COMP_TEMP_EN=1 (Temp compensation enabled), Continuous mode
+#define CFG_REG_A_VAL  (0x88U) // 10001000 -> ODR=50Hz, COMP_TEMP_EN=1 (Temp compensation enabled), Continuous mode
 
 #define CFG_REG_B      (0x61U)
-#define CFG_REG_B_VAL  (0x01U) // Digital filter enabled
+#define CFG_REG_B_VAL  (0x03U) // 00000011 -> OFF_CANC=1 (Offset cancellation uses the internal set/reset pulse to null out sensor offset drift over temperature - recommended by ST for continuous mode), Digital filter enabled
 
 #define CFG_REG_C      (0x62U)
 #define CFG_REG_C_VAL  (0x10U) // BDU=1 (reading incorrect data is avoided when the user reads asynchronously)
@@ -35,11 +39,12 @@ DEFINES
 #define OUTZ_H_REG     (0x6DU) // Output register
 
 
-#define LIS2MDL_CS_High()  (GPIOB_BSRR |= (1UL << GPIOB_BSRR_BS_12_OFFSET))/* Set CS pin high */
-#define LIS2MDL_CS_Low()   (GPIOB_BSRR |= (1UL << GPIOB_BSRR_BR_12_OFFSET))/* Set CS pin low */
+
+#define NUM_OUTPUT_REG   6U
 
 
-//#define MAGNETIC_SENSITIVITY  (0.15f) // Sensitivity value is 1.5 mGauss/LSB according to the datasheet
+
+//#define MAGNETIC_SENSITIVITY  (0.0015f) // Sensitivity value is 1.5 mGauss/LSB according to the datasheet
 
 
 /****************************************************************************
@@ -54,7 +59,8 @@ typedef struct
 	int16_t Magnetic_z_Gauss_raw;
 } Magnetom_raw_t;
 
-Magnetom_raw_t Magnetom_raw;
+extern Magnetom_raw_t Magnetom_raw;
+
 
 
 /****************************************************************************
@@ -62,11 +68,10 @@ FUNCTIONS PROTOTYPES
 ****************************************************************************/
 
 /* Magnetometer Init function */
-void LIS2MDL_Magnetom_Init(void);
+uint8_t LIS2MDL_Magnetom_Init();
 
 /* Magnetometer periodic task */
-void LIS2MDL_Magnetom_Task(void);
-
+void LIS2MDL_Magnetom_Task(Magnetom_raw_t *pMagnetom_raw);
 
 
 #endif /* DEVICES_LIS2MDL_MAGNETOM_INC_LIS2MDL_H_ */

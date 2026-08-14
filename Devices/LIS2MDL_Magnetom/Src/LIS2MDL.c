@@ -1,7 +1,7 @@
 /*
  * LIS2MDL.c
  *
- *  Created on: 12 mar 2026
+ *  Created on: Jul 30, 2026
  *      Author: marco91
  */
 
@@ -10,47 +10,49 @@
 
 
 
+/****************************************************************************
+GLOBAL VARIABLES
+****************************************************************************/
+Magnetom_raw_t Magnetom_raw = {0};
 
-void LIS2MDL_Magnetom_Init()
+
+
+
+uint8_t LIS2MDL_Magnetom_Init()
 {
-	Magnetom_raw.Magnetic_x_Gauss_raw = 0U;
-	Magnetom_raw.Magnetic_y_Gauss_raw = 0U;
-	Magnetom_raw.Magnetic_z_Gauss_raw = 0U;
+	uint8_t retVal = I2C_ERROR; // I2C, differently from SPI, has several "buil-in" error status in its protocol
 
-	LIS2MDL_CS_Low(); // Set Control Select pin high to start a transaction
-	SPI_Write(CFG_REG_A, CFG_REG_A_VAL); // Configure register REGA
-	LIS2MDL_CS_High(); // Set Control Select pin low to finish a transaction
+	retVal = I2C_Write(LIS2MDL_I2C_ADDR, CFG_REG_A, CFG_REG_A_VAL); // Configure register REGA
+	retVal |= I2C_Write(LIS2MDL_I2C_ADDR, CFG_REG_B, CFG_REG_B_VAL); // Configure register REGB
+	retVal |= I2C_Write(LIS2MDL_I2C_ADDR, CFG_REG_C, CFG_REG_C_VAL); // Configure register REGC
 
-	LIS2MDL_CS_Low(); // Set Control Select pin high to start a transaction
-	SPI_Write(CFG_REG_B, CFG_REG_B_VAL); // Configure register REGB
-	LIS2MDL_CS_High(); // Set Control Select pin low to finish a transaction
-
-	LIS2MDL_CS_Low(); // Set Control Select pin high to start a transaction
-	SPI_Write(CFG_REG_C, CFG_REG_C_VAL); // Configure register REGC
-	LIS2MDL_CS_High(); // Set Control Select pin low to finish a transaction
-
+	return (retVal);
 }
 
 
-void LIS2MDL_Magnetom_Task()
+void LIS2MDL_Magnetom_Task(Magnetom_raw_t *pMagnetom_raw)
 {
-	uint8_t Magnetic_Val[6];
+	uint8_t retVal = I2C_ERROR;
+	uint8_t Magnetic_Val[NUM_OUTPUT_REG];
 
-	LIS2MDL_CS_Low(); // Set Control Select pin high to start a transaction
 
-	/* Currently the multi-byte read (auto-increment) feature is not used. Possible ToDo */
-	Magnetic_Val[0] = SPI_Read((uint8_t)OUTX_L_REG); // Read first byte of the 6-bytes representing the magnetic value
-	Magnetic_Val[1] = SPI_Read((uint8_t)OUTX_H_REG); // Read second byte of the 6-bytes representing the magnetic value
-	Magnetic_Val[2] = SPI_Read((uint8_t)OUTY_L_REG); // Read third byte of the 6-bytes representing the magnetic value
-	Magnetic_Val[3] = SPI_Read((uint8_t)OUTY_H_REG); // Read fourth byte of the 6-bytes representing the magnetic value
-	Magnetic_Val[4] = SPI_Read((uint8_t)OUTZ_L_REG); // Read fifth byte of the 6-bytes representing the magnetic value
-	Magnetic_Val[5] = SPI_Read((uint8_t)OUTZ_H_REG); // Read sixth byte of the 6-bytes representing the magnetic value
-
-	LIS2MDL_CS_High(); // Set Control Select pin low to finish a transaction
-
-	Magnetom_raw.Magnetic_x_Gauss_raw = (Magnetic_Val[1] << 8) | Magnetic_Val[0];
-	Magnetom_raw.Magnetic_y_Gauss_raw = (Magnetic_Val[3] << 8) | Magnetic_Val[2];
-	Magnetom_raw.Magnetic_z_Gauss_raw = (Magnetic_Val[5] << 8) | Magnetic_Val[4];
+	/* Burst read of magnetometer output registers */
+	retVal = I2C_ReadBurst(LIS2MDL_I2C_ADDR, OUTX_L_REG, Magnetic_Val, NUM_OUTPUT_REG); // Read first byte of the 6-bytes representing the magnetic value. Burst read will be started from here
+  //retVal = I2C_Read(LIS2MDL_I2C_ADDR, OUTX_H_REG, &Magnetic_Val); // Read second byte of the 6-bytes representing the magnetic value
+  //retVal = I2C_Read(LIS2MDL_I2C_ADDR, OUTY_L_REG, &Magnetic_Val); // Read third byte of the 6-bytes representing the magnetic value
+  //retVal = I2C_Read(LIS2MDL_I2C_ADDR, OUTY_H_REG, &Magnetic_Val); // Read fourth byte of the 6-bytes representing the magnetic value
+  //retVal = I2C_Read(LIS2MDL_I2C_ADDR, OUTZ_L_REG, &Magnetic_Val); // Read fifth byte of the 6-bytes representing the magnetic value
+  //retVal = I2C_Read(LIS2MDL_I2C_ADDR, OUTZ_H_REG, &Magnetic_Val); // Read sixth byte of the 6-bytes representing the magnetic value
+	if(retVal != I2C_OK)
+	{
+		// Keep the previous valid sample instead of using garbage
+	}
+	else
+	{
+		pMagnetom_raw->Magnetic_x_Gauss_raw = (Magnetic_Val[1] << 8) | Magnetic_Val[0];
+		pMagnetom_raw->Magnetic_y_Gauss_raw = (Magnetic_Val[3] << 8) | Magnetic_Val[2];
+		pMagnetom_raw->Magnetic_z_Gauss_raw = (Magnetic_Val[5] << 8) | Magnetic_Val[4];
+	}
 
 	//float Magnetom_x_Gauss = mx_raw * MAGNETIC_SENSITIVITY; // Keep result currently in "raw form". Convert to float only when needed to reduce CPU load
 	//float Magnetom_y_Gauss = my_raw * MAGNETIC_SENSITIVITY; // Keep result currently in "raw form". Convert to float only when needed to reduce CPU load

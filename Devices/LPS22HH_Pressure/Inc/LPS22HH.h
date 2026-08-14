@@ -10,6 +10,7 @@
 
 
 #include "GPIO.h"
+#include "Timer.h"
 #include "SPI.h"
 
 
@@ -19,7 +20,7 @@ DEFINES
 
 /* Registers definition */
 #define CTRL_REG1     (0x10U)
-#define CTRL_REG1_VAL (0x6AU)  // 01101010  -> ODR1=50Hz, EN_LPFP=1 and LPFP_CFG=0 for bandwidth==ODR/9, BDU=1
+#define CTRL_REG1_VAL (0x5CU)  // 01011100  -> ODR1=50Hz, EN_LPFP=1 and LPFP_CFG=1 for bandwidth==ODR/20
 
 #define CTRL_REG2     (0x11U)
 #define CTRL_REG2_VAL (0x00U)  // No reboot, no one-shot
@@ -35,11 +36,11 @@ DEFINES
 #define PRESSURE_OUT_H  (0x2AU) // Output register
 
 
-#define LPS22HH_CS_HIGH()  (GPIOC_BSRR |= (1UL << GPIOC_BSRR_BS_13_OFFSET))/* Set CS pin high */
-#define LPS22HH_CS_LOW()   (GPIOC_BSRR |= (1UL << GPIOC_BSRR_BR_13_OFFSET))/* Set CS pin low */
+#define LPS22HH_CS_HIGH()  (GPIOC_BSRR = (1UL << GPIOC_BSRR_BS_13_OFFSET))/* Set CS pin high */
+#define LPS22HH_CS_LOW()   (GPIOC_BSRR = (1UL << GPIOC_BSRR_BR_13_OFFSET))/* Set CS pin low */
 
 
-//#define PRESSURE_SENSITIVITY  (4096.0f)  // Sensitivity value (in LSB/hPa) according to the datasheet
+#define PRESSURE_SENSITIVITY  (4096.0f)  // Sensitivity value (in LSB/hPa) according to the datasheet
 
 
 
@@ -47,7 +48,8 @@ DEFINES
 GLOBAL VARIABLES
 ****************************************************************************/
 
-uint32_t Pressure_hPa_raw;
+extern uint32_t Pressure_raw;
+extern float Pressure_hPa;
 
 
 
@@ -59,7 +61,10 @@ FUNCTIONS PROTOTYPES
 void LPS22HH_Pressure_Init(void);
 
 /* Pressure periodic task */
-void LPS22HH_Pressure_Task(void);
+void LPS22HH_Pressure_Task(uint32_t *pPressure_raw);
+
+
+void LPS22HH_Data_Conversion(const uint32_t *pPressure_raw, float *pPressure_hPa); // "inline" keyword kept only in .c file, since compilation uses "-std=gnu11", and consequently the C99/C11 inline rules apply
 
 
 #endif /* DEVICES_LPS22HH_PRESSURE_INC_LPS22HH_H_ */
