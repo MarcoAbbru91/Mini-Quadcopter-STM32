@@ -23,39 +23,72 @@
 #include "GPIO.h"
 #include "Timer.h"
 #include "SPI.h"
+#include "I2C.h"
+#include "BLE.h"
+#include "hci.h"
 #include "LPS22HH.h"
 #include "LSM6DSR.h"
+#include "LIS2MDL.h"
+#include "HAL_Devices.h"
 
-
-#if !defined(__SOFT_FP__) && defined(__ARM_FP)
-  #warning "FPU is not initialized, but the project is compiling for an FPU. Please initialize the FPU before use."
-#endif
 
 
 /****************************************************************************
-Global variables
+GLOBAL VARIABLES
 ****************************************************************************/
-extern volatile uint32_t SysTick_Counter;
+extern uint8_t set_connectable; // TODO move it to a .h file??
+extern int connected; // TODO move it to a .h file??
 
+
+/****************************************************************************
+DEFINES
+****************************************************************************/
+/* Define FPU base address */
+#define FPU_BASE_ADDRESS      (0xE000ED00UL)
+
+/* FPU CPACR - Coprocessor access control register offset */
+#define FPU_CPACR_OFFSET        (0x88UL)
+/* FPU CPACR Register address */
+#define FPU_CPACR_ADDRESS       (FPU_BASE_ADDRESS + FPU_CPACR_OFFSET)
+#define FPU_CPACR               (* (volatile uint32_t *)(FPU_CPACR_ADDRESS)) // typecast and dereference
+/* FPU CPACR CP10 offset */
+#define FPU_CPACR2_CP10_OFFSET  (20UL) // 2 bits
+/* FPU CPACR CP11 offset */
+#define FPU_CPACR2_CP11_OFFSET  (22UL) // 2 bits
+
+
+
+
+
+static inline void Enable_FPU(void)
+{
+	FPU_CPACR |= (3UL << FPU_CPACR2_CP10_OFFSET); // FPU Full Access
+	FPU_CPACR |= (3UL << FPU_CPACR2_CP11_OFFSET); // FPU Full Access
+}
 
 
 
 int main(void)
 {
-	static uint32_t SysTick_Last     = 0;
-	static uint32_t SysTick_Last5ms  = 0;
-	static uint32_t SysTick_Last50ms = 0;
-	//float PWM_Mot1 = 0.0f;
-	//float PWM_Mot2 = 0.0f;
-	//float PWM_Mot3 = 0.0f;
-	//float PWM_Mot4 = 0.0f;
+	uint8_t retVal;
+	static uint32_t SysTick_Last     = 0U;
+	static uint32_t SysTick_Last2ms  = 0U;
+	static uint32_t SysTick_Last10ms = 0U;
+	static uint32_t SysTick_Last20ms = 0U;
+
+	/////uint32_t tmpCounter[10] = {0};
 
 	/* Initialize Reset and Clock as well as Flash Memory Interface, required for PLL */
 	RCC_Init();
-	/* NVIC and EXTI initialization - Enable_Interrupts */
-	NVIC_EXTI_Init();
 	/* Initialize System Configuration Controller */
 	SysCfg_Init();
+	/* NVIC and EXTI initialization - Enable_Interrupts */
+	NVIC_EXTI_Init();
+	/* Enable Floating Point Unit */
+	Enable_FPU(); // Required for usage of "float" data type operations
+
+	__asm volatile ("cpsie i");
+
 	/* Initialize General-Purpose Timer */
 	Timer_Init();
 	/* Initialize GPIOs */
@@ -64,26 +97,41 @@ int main(void)
 	PWM_Init();
 	/* Initialize SPI */
 	SPI_Init();
-
+	/* Initialize I2C */
+	I2C_Init();
+	/* Initialize pressure sensor */
 	LPS22HH_Pressure_Init();
-
-	LSM6DSR_Imu_Init();
-
+	/* Initialize IMU sensor */
+	LSM6DSR_IMU_Init();
+	/* Initialize magnetometer sensor */
+	retVal = LIS2MDL_Magnetom_Init();
+	(void)retVal;/* TODO: Add countermeasure for error return, e.g. soft reset */
+	/* Initialize Simulink (flight) controller */
+	//Controller_initialize();
+	/* Initialize BLE */
+	retVal = BLE_Init();
+	(void)retVal;/* TODO: Add countermeasure for error return, e.g. soft reset */
 
 
 
 	/****** TMP code for debugging purposes below to be removed ******/
-	//volatile uint8_t who;
+	volatile uint8_t who1, who2, who3;
 
 	//LSM6DSR_CS_LOW();
 	//SPI2_FlushRX();
-	//who = SPI2_Read(0x0F);
+	//who1 = SPI2_Read(0x0F); // who_I_am register address
+	//(void)who1;
 	//LSM6DSR_CS_HIGH();
 
 	//LPS22HH_CS_LOW();
 	//SPI2_FlushRX();
-	//who = SPI2_Read(0x0F);
+	//who2 = SPI2_Read(0x0F); // who_I_am register address
+	//(void)who2;
 	//LPS22HH_CS_HIGH();
+
+	uint8_t WhoIAm;
+	who3 = I2C_Read(LIS2MDL_I2C_ADDR, 0x4F, &WhoIAm); // // 0x4F is who_I_am register address
+	(void)who3;
 	/****** TMP code for debugging purposes above to be removed ******/
 
 	/* Loop forever */
@@ -92,20 +140,60 @@ int main(void)
 		if(SysTick_Counter != SysTick_Last)
 		{
 			SysTick_Last = SysTick_Counter;
-			LSM6DSR_Imu_Task(); // 1ms task
 
-			if((SysTick_Counter - SysTick_Last50ms) >= 50) // Check if 50ms are elapsed
+			if((SysTick_Counter - SysTick_Last2ms) >= 2) // Check if 2ms are elapsed
 			{
-				SysTick_Last50ms = SysTick_Counter;
-				LPS22HH_Pressure_Task(); // 50ms task
+				/* The 2ms SysTick will be updated later one, after the last "2ms if-case" used for the flight controller */
+				
+				/* Gyro and accelerometer are used for the fast stabilization dynamics. Therefore 2ms is a reasonable scheduling time (they can change quickly when the drone rotates) */
+				LSM6DSR_IMU_Task(&IMU_raw); // 2ms task
 			}
-			
-			if((SysTick_Counter - SysTick_Last5ms) >= 5) // Check if 5ms are elapsed
+
+			if((SysTick_Counter - SysTick_Last20ms) >= 20) // Check if 20ms are elapsed
 			{
-				SysTick_Last5ms = SysTick_Counter;
-				//PWM_Set(PWM_Mot1, PWM_Mot2, PWM_Mot3, PWM_Mot4); // TODO: Re-enable with FPU enabled, or re-enable using only uint
+				SysTick_Last20ms = SysTick_Counter;
+
+				/* The magnetometer mainly provides a slow absolute heading reference for yaw. 
+				   20ms is a reasonable scheduling time, since the Earth’s magnetic field does not change rapidly. Furthermore, the magnetometer itself usually has lower bandwidth than IMU's one */
+				LIS2MDL_Magnetom_Task(&Magnetom_raw); // 20ms task
+
+				LPS22HH_Pressure_Task(&Pressure_raw); // 20ms task
+
+				/////for(uint8_t i=0; i<10; i++)
+				/////{
+					/////tmpCounter[i] = TIM4_CNT;
+				/////}
+			}
+
+			if((SysTick_Counter - SysTick_Last10ms) >= 10) // Check if 10ms are elapsed
+			{
+				SysTick_Last10ms = SysTick_Counter;
+
+				if (HCI_ProcessEvent)
+				{
+					HCI_ProcessEvent = 0;
+					HCI_Process(); // 10ms task - Empties the queue and calls HCI_Event_CB
+				}
+				if (set_connectable)
+				{
+					//Now update the BLE advertise data and make the board connectable
+					setConnectable();
+					set_connectable = FALSE;
+				}
+			}
+
+			if((SysTick_Counter - SysTick_Last2ms) >= 2) // Check if 2ms are elapsed
+			{
+				SysTick_Last2ms = SysTick_Counter;
+
+				/* Update controller inputs coming from sensors and BLE */
+				Update_Controller_Inputs(&IMU_raw, &Pressure_raw);
+				/* Schedule/Execute the flight controller */
+				//Controller_step();
+				/* Update motor inputs */
+				Update_Motor_Inputs();
+				PWM_Set(&PWM_Mot1, &PWM_Mot2, &PWM_Mot3, &PWM_Mot4);
 			}
 		}
-
 	}
 }
