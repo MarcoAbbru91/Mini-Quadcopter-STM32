@@ -174,11 +174,6 @@ uint8_t I2C_Transmit(uint8_t Val)
    so a single frame "START - Addr(W) - RegAddr - Data0 .. DataN - STOP" is used */
 uint8_t I2C_Write(uint8_t SlaveAddr, uint8_t RegAddr, uint8_t Data)
 {
-	if(Data == 0)
-	{
-		return (I2C_ERROR);
-	}
-
 	/* START condition */
 	if(I2C_Start() != I2C_OK)
 	{
