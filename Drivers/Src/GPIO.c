@@ -84,6 +84,32 @@ void GPIO_Init(void)
 	/* Clear and Set Alternate Function 15 for PB15 port */
 	GPIOB_AFRH &= ~(0xFUL << GPIOB_AFRH_15_OFFSET);
 	GPIOB_AFRH |=  (0x5UL << GPIOB_AFRH_15_OFFSET);
+	/* SCL I2C pin for the magnetometer sensor */
+	/* Clear and Set port 10 to Alternate Function mode */
+	GPIOB_MODER &= ~(0x3UL << GPIOB_MODER_10_OFFSET);
+	GPIOB_MODER |=  (0x2UL << GPIOB_MODER_10_OFFSET); // 2 = Alternate Function Mode
+	/* Sets Output Type for PB10 */
+	GPIOB_OTYPER |= (0x1UL << GPIOB_OTYPER_10_OFFSET); // Open-Drain (mandatory for I2C)
+	/* Sets Speed for PB10 */
+	GPIOB_OSPEEDR |= (0x3UL << GPIOB_OSPEEDR_10_OFFSET); // Very High Speed
+	/* Clear bits for PB10 port */
+	GPIOB_PUPDR &= ~(0x3UL << GPIOB_PUPDR_10_OFFSET); // no pull-up/down, the external pull-up resistors are used
+	/* Clear and Set Alternate Function 4 for PB10 port */
+	GPIOB_AFRH &= ~(0xFUL << GPIOB_AFRH_10_OFFSET);
+	GPIOB_AFRH |=  (0x4UL << GPIOB_AFRH_10_OFFSET);
+	/* SDA I2C pin for the magnetometer sensor */
+	/* Clear and Set port 3 to Alternate Function mode */
+	GPIOB_MODER &= ~(0x3UL << GPIOB_MODER_3_OFFSET);
+	GPIOB_MODER |=  (0x2UL << GPIOB_MODER_3_OFFSET); // 2 = Alternate Function Mode
+	/* Sets Output Type for PB3 */
+	GPIOB_OTYPER |= (0x1UL << GPIOB_OTYPER_3_OFFSET); // Open-Drain (mandatory for I2C)
+	/* Sets Speed for PB3 */
+	GPIOB_OSPEEDR |= (0x3UL << GPIOB_OSPEEDR_3_OFFSET); // Very High Speed
+	/* Clear bits for PB3 port */
+	GPIOB_PUPDR &= ~(0x3UL << GPIOB_PUPDR_3_OFFSET); // no pull-up/down, the external pull-up resistors are used
+	/* Clear and Set Alternate Function 9 for PB3 port */
+	GPIOB_AFRL &= ~(0xFUL << GPIOB_AFRL_3_OFFSET);
+	GPIOB_AFRL |=  (0x9UL << GPIOB_AFRL_3_OFFSET);
 
 	/* Enable Clock for GPIOA peripheral - Needed for SCK, MOSI, MISO SPI pins for the three sensors */
 	RCC_AHB1 |= (0x01UL << RCC_AHB1_GPIOA_EN);

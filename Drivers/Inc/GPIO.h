@@ -97,6 +97,8 @@ DEFINES
 #define GPIOB_MODER_0_OFFSET  (0UL) // 2 bits
 /* GPIOB Mode Register PB2 offset */
 #define GPIOB_MODER_2_OFFSET  (4UL) // 2 bits
+/* GPIOB Mode Register PB3 offset */
+#define GPIOB_MODER_3_OFFSET  (6UL) // 2 bits
 /* GPIOB Mode Register PB6 offset */
 #define GPIOB_MODER_6_OFFSET  (12UL) // 2 bits
 /* GPIOB Mode Register PB7 offset */
@@ -105,6 +107,8 @@ DEFINES
 #define GPIOB_MODER_8_OFFSET  (16UL) // 2 bits
 /* GPIOB Mode Register PB9 offset */
 #define GPIOB_MODER_9_OFFSET  (18UL) // 2 bits
+/* GPIOB Mode Register PB10 offset */
+#define GPIOB_MODER_10_OFFSET (20UL) // 2 bits
 /* GPIOB Mode Register PB12 offset */
 #define GPIOB_MODER_12_OFFSET (24U) // 2 bits
 /* GPIOB Mode Register PB13 offset */
@@ -114,8 +118,21 @@ DEFINES
 /* GPIOB Mode Register PB15 offset */
 #define GPIOB_MODER_15_OFFSET (30U) // 2 bits
 
+/* GPIOB OTYPER - Output Type Register offset (I2C requires open-drain outputs) */
+#define GPIOB_OTYPER_OFFSET       (0x04UL) /* GPIOB Output Type Register address */
+#define GPIOB_OTYPER_ADDRESS      (GPIOB_BASE_ADDRESS + GPIOB_OTYPER_OFFSET)
+#define GPIOB_OTYPER              (* (volatile uint32_t *)(GPIOB_OTYPER_ADDRESS)) // typecast and dereference
+/* GPIOB Output Type Register PB3 offset (I2C_SDA) */
+#define GPIOB_OTYPER_3_OFFSET   (3UL)
+/* GPIOB Output Type Register PB10 offset (I2C_SCL) */
+#define GPIOB_OTYPER_10_OFFSET  (10UL)
+
 #define GPIOB_PUPDR_OFFSET  (0x0CUL)
 #define GPIOB_PUPDR (* (volatile uint32_t *)(GPIOB_BASE_ADDRESS + GPIOB_PUPDR_OFFSET))
+/* GPIOB Pull-Up/Pull-Down Register PB3 offset (I2C_SDA) */
+#define GPIOB_PUPDR_3_OFFSET  (6UL) // 2 bits
+/* GPIOB Pull-Up/Pull-Down Register PB10 offset (I2C_SCL) */
+#define GPIOB_PUPDR_10_OFFSET (20UL) // 2 bits
 /* */
 #define GPIOB_PUPDR_14_OFFSET (28UL)
 
@@ -130,6 +147,8 @@ DEFINES
 #define GPIOB_AFRL_OFFSET         (0x20UL) /* GPIOB Alternate Function Register address */
 #define GPIOB_AFRL_ADDRESS        (GPIOB_BASE_ADDRESS + GPIOB_AFRL_OFFSET)
 #define GPIOB_AFRL                (* (volatile uint32_t *)(GPIOB_AFRL_ADDRESS)) // typecast and dereference
+/* GPIOB Alternate Function Register PB3 offset (AFRL contains bits from 0 to 7, of port X) */
+#define GPIOB_AFRL_3_OFFSET  (12UL) // 4 bits
 /* GPIOB Alternate Function Register PB6 offset (AFRL contains bits from 0 to 7, of port X) */
 #define GPIOB_AFRL_6_OFFSET  (24UL) // 4 bits
 /* GPIOB Alternate Function Register PB7 offset (AFRL contains bits from 0 to 7, of port X) */
@@ -143,6 +162,8 @@ DEFINES
 #define GPIOB_AFRH_8_OFFSET  (0UL) // 4 bits
 /* GPIOB Alternate Function Register PB9 offset (AFRH contains bits from 8 to 15, of port X) */
 #define GPIOB_AFRH_9_OFFSET  (4UL) // 4 bits
+/* GPIOB Alternate Function Register PB10 offset (AFRH contains bits from 8 to 15, of port X) */
+#define GPIOB_AFRH_10_OFFSET  (8UL) // 4 bits
 /* GPIOB Alternate Function Register PB13 offset (AFRH contains bits from 8 to 15, of port X) */
 #define GPIOB_AFRH_13_OFFSET  (20UL) // 4 bits
 /* GPIOB Alternate Function Register PB14 offset (AFRH contains bits from 8 to 15, of port X) */
@@ -158,6 +179,10 @@ DEFINES
 #define GPIOB_OSPEEDR_0_OFFSET  (0UL) // 2 bits
 /* GPIOB Output Speed Register PB2 offset */
 #define GPIOB_OSPEEDR_2_OFFSET  (4UL) // 2 bits
+/* GPIOB Output Speed Register PB3 offset */
+#define GPIOB_OSPEEDR_3_OFFSET  (6UL) // 2 bits
+/* GPIOB Output Speed Register PB10 offset */
+#define GPIOB_OSPEEDR_10_OFFSET  (20UL) // 2 bits
 /* GPIOB Output Speed Register PB12 offset */
 #define GPIOB_OSPEEDR_12_OFFSET  (24UL) // 2 bits
 /* GPIOB Output Speed Register PB13 offset */

@@ -23,6 +23,7 @@
 #include "GPIO.h"
 #include "Timer.h"
 #include "SPI.h"
+#include "I2C.h"
 #include "BLE.h"
 #include "hci.h"
 #include "LPS22HH.h"
@@ -66,6 +67,15 @@ static inline void Enable_FPU(void)
 
 
 
+
+static inline void Enable_FPU(void)
+{
+	FPU_CPACR |= (3UL << FPU_CPACR2_CP10_OFFSET); // FPU Full Access
+	FPU_CPACR |= (3UL << FPU_CPACR2_CP11_OFFSET); // FPU Full Access
+}
+
+
+
 int main(void)
 {
 	uint8_t retVal;
@@ -94,6 +104,8 @@ int main(void)
 	PWM_Init();
 	/* Initialize SPI */
 	SPI_Init();
+	/* Initialize I2C */
+	I2C_Init();
 	/* Initialize pressure sensor */
 	LPS22HH_Pressure_Init();
 	/* Initialize IMU sensor */
@@ -107,7 +119,7 @@ int main(void)
 
 
 	/****** TMP code for debugging purposes below to be removed ******/
-	//volatile uint8_t who1, who2;
+	//volatile uint8_t who1, who2, who3;
 
 	//LSM6DSR_CS_LOW();
 	//SPI2_FlushRX();
@@ -120,6 +132,10 @@ int main(void)
 	//who2 = SPI2_Read(0x0F); // who_I_am register address
 	//(void)who2;
 	//LPS22HH_CS_HIGH();
+
+	//uint8_t WhoIAm;
+	//who3 = I2C_Read(LIS2MDL_I2C_ADDR, 0x4F, &WhoIAm); // // 0x4F is who_I_am register address
+	//(void)who3;
 	/****** TMP code for debugging purposes above to be removed ******/
 
 	/* Loop forever */
@@ -140,10 +156,6 @@ int main(void)
 			if((SysTick_Counter - SysTick_Last20ms) >= 20) // Check if 20ms are elapsed
 			{
 				SysTick_Last20ms = SysTick_Counter;
-
-				/* The magnetometer mainly provides a slow absolute heading reference for yaw. 
-				   20ms is a reasonable scheduling time, since the Earth’s magnetic field does not change rapidly. Furthermore, the magnetometer itself usually has lower bandwidth than IMU's one */
-				//LIS2MDL_Magneto_Task(&Magneto_raw); // 20ms task
 
 				LPS22HH_Pressure_Task(&Pressure_raw); // 20ms task
 			}

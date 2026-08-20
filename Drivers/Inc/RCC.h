@@ -79,6 +79,8 @@ DEFINES
 #define RCC_APB1_TIM4_EN       (2UL)
 /* APB1 SPI2 Clock Enable bit (BLE) */
 #define RCC_APB1_SPI2_EN       (14UL)
+/* APB1 I2C2 Clock Enable bit (magnetometer sensor) */
+#define RCC_APB1_I2C_EN        (22UL)
 
 
 /* APB2 Clock Enable Register offset */
