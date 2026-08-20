@@ -9,20 +9,21 @@
 #include "LSM6DSR.h"
 
 
+/****************************************************************************
+GLOBAL VARIABLES
+****************************************************************************/
+IMU_raw_t IMU_raw = {0};
+IMU_data_conv_t IMU_converted = {0};
 
-void LSM6DSR_Imu_Init()
+
+
+
+void LSM6DSR_IMU_Init()
 {
 	/* Set CS to HIGH (idle) before starting any SPI transaction */
 	LSM6DSR_CS_HIGH();
 	/* Small delay to be sure all pins are now really high */
-	Delay_ms(1);
-
-	IMU_raw.Gyroscope_x_dps_raw = 0U;
-	IMU_raw.Gyroscope_y_dps_raw = 0U;
-	IMU_raw.Gyroscope_z_dps_raw = 0U;
-	IMU_raw.Accelerom_x_dps_raw = 0U;
-	IMU_raw.Accelerom_y_dps_raw = 0U;
-	IMU_raw.Accelerom_z_dps_raw = 0U;
+	Delay_ms(1.0f);
 
 	LSM6DSR_CS_LOW(); // Set Control Select pin high to start a transaction
 	SPI2_FlushRX(); // Flush previously used/written Rx buffer
@@ -51,7 +52,7 @@ void LSM6DSR_Imu_Init()
 }
 
 
-void LSM6DSR_Imu_Task()
+void LSM6DSR_IMU_Task(const IMU_raw_t *Imu_raw)
 {
 	uint8_t IMU_Val[12];
 
@@ -74,17 +75,24 @@ void LSM6DSR_Imu_Task()
 
 	LSM6DSR_CS_HIGH(); // Set Control Select pin high to finish a transaction
 
-	IMU_raw.Gyroscope_x_dps_raw = (IMU_Val[1] << 8)  | IMU_Val[0];
-	IMU_raw.Gyroscope_y_dps_raw = (IMU_Val[3] << 8)  | IMU_Val[2];
-	IMU_raw.Gyroscope_z_dps_raw = (IMU_Val[5] << 8)  | IMU_Val[4];
-	IMU_raw.Accelerom_x_dps_raw = (IMU_Val[7] << 8)  | IMU_Val[6];
-	IMU_raw.Accelerom_y_dps_raw = (IMU_Val[9] << 8)  | IMU_Val[8];
-	IMU_raw.Accelerom_z_dps_raw = (IMU_Val[11] << 8) | IMU_Val[10];
+	IMU_raw.Gyroscope_x_raw = (IMU_Val[1]  << 8) | IMU_Val[0];
+	IMU_raw.Gyroscope_y_raw = (IMU_Val[3]  << 8) | IMU_Val[2];
+	IMU_raw.Gyroscope_z_raw = (IMU_Val[5]  << 8) | IMU_Val[4];
+	IMU_raw.Accelerom_x_raw = (IMU_Val[7]  << 8) | IMU_Val[6];
+	IMU_raw.Accelerom_y_raw = (IMU_Val[9]  << 8) | IMU_Val[8];
+	IMU_raw.Accelerom_z_raw = (IMU_Val[11] << 8) | IMU_Val[10];
+	(void)IMU_raw.Gyroscope_x_raw; // only for debug purposes to set breakpoint here
+	/* Keep result currently in "raw form". Convert to float only when needed, to reduce CPU load */
+}
 
-	//float Gyroscope_x_dps = (IMU_raw.Gyroscope_x_dps_raw * GYRO_SENSITIVITY);  // Keep result currently in "raw form". Convert to float only when needed, to reduce CPU load
-	//float Gyroscope_y_dps = (IMU_raw.Gyroscope_y_dps_raw * GYRO_SENSITIVITY);  // Keep result currently in "raw form". Convert to float only when needed, to reduce CPU load
-	//float Gyroscope_z_dps = (IMU_raw.Gyroscope_z_dps_raw * GYRO_SENSITIVITY);  // Keep result currently in "raw form". Convert to float only when needed, to reduce CPU load
-	//float Accelerom_x_dps = (IMU_raw.Accelerom_x_dps_raw * ACCEL_SENSITIVITY);  // Keep result currently in "raw form". Convert to float only when needed, to reduce CPU load
-	//float Accelerom_y_dps = (IMU_raw.Accelerom_y_dps_raw * ACCEL_SENSITIVITY);  // Keep result currently in "raw form". Convert to float only when needed, to reduce CPU load
-	//float Accelerom_z_dps = (IMU_raw.Accelerom_z_dps_raw * ACCEL_SENSITIVITY);  // Keep result currently in "raw form". Convert to float only when needed, to reduce CPU load
+
+inline void IMU_Data_Conversion(const IMU_raw_t *IMU_raw, IMU_data_conv_t *IMU_converted)
+{
+	/* Convert raw gyroscope and accelerometer data to actual data with unit format */
+	IMU_converted->Gyroscope_x_radps = (IMU_raw->Gyroscope_x_raw * GYRO_SENSITIVITY); // access it by-reference (equivalent to writing '*' for a variable): to update output parameter
+	IMU_converted->Gyroscope_y_radps = (IMU_raw->Gyroscope_y_raw * GYRO_SENSITIVITY);
+	IMU_converted->Gyroscope_z_radps = (IMU_raw->Gyroscope_z_raw * GYRO_SENSITIVITY);
+	IMU_converted->Accelerom_x_mps2 =  (IMU_raw->Accelerom_x_raw * ACCEL_SENSITIVITY);
+	IMU_converted->Accelerom_y_mps2 =  (IMU_raw->Accelerom_y_raw * ACCEL_SENSITIVITY);
+	IMU_converted->Accelerom_z_mps2 =  (IMU_raw->Accelerom_z_raw * ACCEL_SENSITIVITY);
 }

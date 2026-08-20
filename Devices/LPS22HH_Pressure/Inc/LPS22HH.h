@@ -20,7 +20,7 @@ DEFINES
 
 /* Registers definition */
 #define CTRL_REG1     (0x10U)
-#define CTRL_REG1_VAL (0x5CU)  // 01010000  -> ODR1=50Hz, EN_LPFP=1 and LPFP_CFG=1 for bandwidth==ODR/20
+#define CTRL_REG1_VAL (0x5CU)  // 01011100  -> ODR1=50Hz, EN_LPFP=1 and LPFP_CFG=1 for bandwidth==ODR/20
 
 #define CTRL_REG2     (0x11U)
 #define CTRL_REG2_VAL (0x00U)  // No reboot, no one-shot
@@ -48,7 +48,8 @@ DEFINES
 GLOBAL VARIABLES
 ****************************************************************************/
 
-uint32_t Pressure_hPa_raw;
+extern uint32_t Pressure_raw;
+extern float Pressure_hPa;
 
 
 
@@ -60,7 +61,10 @@ FUNCTIONS PROTOTYPES
 void LPS22HH_Pressure_Init(void);
 
 /* Pressure periodic task */
-void LPS22HH_Pressure_Task(void);
+void LPS22HH_Pressure_Task(uint32_t *Pressure_raw);
+
+
+void LPS22HH_Data_Conversion(const uint32_t *Pressure_raw, float *Pressure_hPa); // "inline" keyword kept only in .c file, since compilation uses "-std=gnu11", and consequently the C99/C11 inline rules apply
 
 
 #endif /* DEVICES_LPS22HH_PRESSURE_INC_LPS22HH_H_ */

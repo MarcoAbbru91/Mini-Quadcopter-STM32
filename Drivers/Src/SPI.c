@@ -22,6 +22,9 @@ void SPI_Init()
 	/* Disable SPI */
 	SPI2_CR1 &= ~(1UL << SPI_CR1_SPE_OFFSET);
 
+	SPI2_CR1 = 0x0000; // Reset register
+	SPI2_CR2 = 0x0000; // Reset register
+
 	/* Clears/sets SPI Clock Phase */
 	SPI2_CR1 &= ~(1UL << SPI_CR1_CPHA_OFFSET);
 	SPI2_CR1 |= (1 << SPI_CR1_CPHA_OFFSET); // Second clock transition is the first data capture edge. CPHA and CPOL set to 1 to have the SPI2 in Mode 3 for the sensors
@@ -61,12 +64,13 @@ void SPI_Init()
 	/* Disable SPI */
 	SPI1_CR1 &= ~(1UL << SPI_CR1_SPE_OFFSET);
 
-	/* Clears/sets SPI Clock Phase */
-	SPI1_CR1 &= ~(1UL << SPI_CR1_CPHA_OFFSET);
-	SPI1_CR1 |= (1 << SPI_CR1_CPHA_OFFSET); // Second clock transition is the first data capture edge. CPHA and CPOL set to 1 to have the SPI2 in Mode 3 for the sensors
-	/* Clears/sets SPI Clock Polarity */
-	SPI1_CR1 &= ~(1UL << SPI_CR1_CPOL_OFFSET);
-	SPI1_CR1 |= (1 << SPI_CR1_CPOL_OFFSET); // CLK=1 when idle. CPHA and CPOL set to 1 to have the SPI2 in Mode 3 for the sensors
+	SPI1_CR1 = 0x0000; // Reset register
+	SPI1_CR2 = 0x0000; // Reset register
+
+	/* Clears SPI Clock Phase */
+	SPI1_CR1 &= ~(1UL << SPI_CR1_CPHA_OFFSET); // The first clock transition is the first data capture edge. CPHA and CPOL set to 0 to have the SPI1 in Mode 0 for the BLE
+	/* Clears SPI Clock Polarity */
+	SPI1_CR1 &= ~(1UL << SPI_CR1_CPOL_OFFSET); // CLK=0 when idle. CPHA and CPOL set to 0 to have the SPI1 in Mode 0 for the BLE
 	/* Sets SPI Master Selection */
 	SPI1_CR1 |= (1UL << SPI_CR1_MSTR_OFFSET);
 	/* Clears and sets SPI Baud Rate */
@@ -94,9 +98,10 @@ void SPI_Init()
 
 
 
+/******** SPI2 functions ********/
 
 /* Flush any stale data from the Rx buffer and clear OVR flag.*/
-inline void SPI2_FlushRX(void)
+void SPI2_FlushRX(void)
 {
 	volatile uint8_t dummy;
 	while(SPI2_SR & (1UL << SPI_SR_RXNE_OFFSET))
@@ -108,7 +113,7 @@ inline void SPI2_FlushRX(void)
 	(void)dummy; // to avoid warning of variable set but not used
 }
 
-/* Full-Duplex Transmit function */
+/* Full-Duplex Transmit function for IMU and pressure sensors */
 void SPI2_Transmit(uint8_t Val)
 {
 	//uint32_t Timeout = 10000; // TODO: To create a timeout timer of approx. 1ms, considering Clock=84MHz and below while-loop's iteration taking around 5-10 clock cycles.
@@ -124,7 +129,7 @@ void SPI2_Transmit(uint8_t Val)
 	*(volatile uint8_t *)&SPI2_DR = Val; // Writes the SPI Data buffer
 }
 
-/* Full-Duplex Receive function */
+/* Full-Duplex Receive function for IMU and pressure sensors */
 uint8_t SPI2_Receive(uint8_t DummyRead)
 {
 	uint8_t RetVal_Data;
@@ -151,7 +156,7 @@ uint8_t SPI2_Receive(uint8_t DummyRead)
 }
 
 
-/* SPI Write operation usually called only during init phase to configure slave's registers */
+/* SPI Write operation for IMU and pressure sensors, usually called only during init phase to configure slave's registers */
 void SPI2_Write(uint8_t Addr, uint8_t Data)
 {
 	SPI2_Transmit(Addr & SPI_Write_Operation); // Send register's address, keeping MSB=0 (write operation)
@@ -161,7 +166,7 @@ void SPI2_Write(uint8_t Addr, uint8_t Data)
 	SPI2_Receive((uint8_t)1U); // Dummy read operation (discarded) to empty RX buffer
 }
 
-/* SPI Read operation to read runtime data from slave */
+/* SPI Read operation for IMU and pressure sensors, to read runtime data from slave */
 uint8_t SPI2_Read(uint8_t SPI_Data_Read)
 {
 	uint8_t RetVal_Data;
@@ -173,6 +178,59 @@ uint8_t SPI2_Read(uint8_t SPI_Data_Read)
 	RetVal_Data = SPI2_Receive((uint8_t)0U);
 
 	return (RetVal_Data);
+}
+
+
+/******** SPI1 functions ********/
+
+/* Flush any stale data from SPI1 RX buffer */
+void SPI1_FlushRX(void)
+{
+    volatile uint8_t dummy;
+    while(SPI1_SR & (1UL << SPI_SR_RXNE_OFFSET))
+    {
+        dummy = *(volatile uint8_t *)&SPI1_DR;
+    }
+    /* Reading SR after DR clears the OVR flag if set */
+    dummy = (volatile uint8_t)SPI1_SR;
+    (void)dummy; // to avoid warning of variable set but not used
+}
+
+/* Full-Duplex Transmit function for BLE */
+void SPI1_Transmit(uint8_t Val)
+{
+    while(!(SPI1_SR & (1UL << SPI_SR_TXE_OFFSET)));
+    *(volatile uint8_t *)&SPI1_DR = Val;
+
+    /* Discard byte received during transmission */
+    while(!(SPI1_SR & (1UL << SPI_SR_RXNE_OFFSET)));
+    (void)*(volatile uint8_t *)&SPI1_DR;
+}
+
+/* Full-Duplex Receive function for BLE */
+uint8_t SPI1_Receive(void)
+{
+    while(!(SPI1_SR & (1UL << SPI_SR_TXE_OFFSET)));
+    *(volatile uint8_t *)&SPI1_DR = 0x00;
+
+    while(!(SPI1_SR & (1UL << SPI_SR_RXNE_OFFSET)));
+
+    return (*(volatile uint8_t *)&SPI1_DR);
+}
+
+/* SPI1 full-duplex: Sends tx[i] and receives rx[i] simultaneously */
+void SPI1_TransferBuffer(uint8_t *Tx, uint8_t *Rx, uint16_t len)
+{
+    for(uint16_t i = 0; i < len; i++)
+    {
+        /* Waits for TX to be ready */
+        while(!(SPI1_SR & (1UL << SPI_SR_TXE_OFFSET)));
+        *(volatile uint8_t *)&SPI1_DR = Tx[i];
+        /* Waits for RX to be ready */
+        while(!(SPI1_SR & (1UL << SPI_SR_RXNE_OFFSET)));
+        Rx[i] = *(volatile uint8_t *)&SPI1_DR;
+    }
+    while(SPI1_SR & (1UL << SPI_SR_BSY_OFFSET));
 }
 
 

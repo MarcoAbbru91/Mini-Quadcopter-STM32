@@ -14,6 +14,7 @@ void SysCfg_Init()
 	/* Enable Clock for EXTI peripheral */
 	RCC_APB2 |= (1UL << RCC_APB2_SYSCFGEN_EN);
 
-	/* Select PA[x] pin as source input for the EXTI4 */
-	SYSCFG_EXTICR2 |= (0UL << SYSCFG_EXTICR2_EXTI4_OFFSET);
+	/* Clear and select PA[x] pin as source input for the EXTI4 */
+	SYSCFG_EXTICR2 &= ~(0xFUL << SYSCFG_EXTICR2_EXTI4_OFFSET);  // Clears bits [3:0] for EXTI4
+	SYSCFG_EXTICR2 |=  (0UL << SYSCFG_EXTICR2_EXTI4_OFFSET);
 }
