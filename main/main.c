@@ -105,12 +105,12 @@ int main(void)
 	LSM6DSR_IMU_Init();
 	/* Initialize magnetometer sensor */
 	retVal = LIS2MDL_Magnetom_Init();
-	(void)retVal;/* TODO: Add countermeasure for error return, e.g. soft reset */
+	(void)retVal;/* TODO: Add countermeasure for error return */
 	/* Initialize Simulink (flight) controller */
 	//Controller_initialize();
 	/* Initialize BLE */
 	retVal = BLE_Init();
-	(void)retVal;/* TODO: Add countermeasure for error return, e.g. soft reset */
+	(void)retVal;/* TODO: Add countermeasure for error return */
 
 
 

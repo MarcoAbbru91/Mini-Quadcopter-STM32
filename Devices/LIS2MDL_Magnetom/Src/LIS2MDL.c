@@ -22,7 +22,7 @@ uint8_t LIS2MDL_Magnetom_Init()
 {
 	uint8_t retVal = I2C_ERROR; // I2C, differently from SPI, has several "buil-in" error status in its protocol
 
-	retVal = I2C_Write(LIS2MDL_I2C_ADDR, CFG_REG_A, CFG_REG_A_VAL); // Configure register REGA
+	retVal  = I2C_Write(LIS2MDL_I2C_ADDR, CFG_REG_A, CFG_REG_A_VAL); // Configure register REGA
 	retVal |= I2C_Write(LIS2MDL_I2C_ADDR, CFG_REG_B, CFG_REG_B_VAL); // Configure register REGB
 	retVal |= I2C_Write(LIS2MDL_I2C_ADDR, CFG_REG_C, CFG_REG_C_VAL); // Configure register REGC
 

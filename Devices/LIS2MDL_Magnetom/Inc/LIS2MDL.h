@@ -18,10 +18,17 @@ DEFINES
 ****************************************************************************/
 
 /* I2C magnetometer (slave) default address */
-#define LIS2MDL_I2C_ADDR  (0x1EU) // Written on the back of the sensor's PCB
+#define LIS2MDL_I2C_ADDR  (0x1EU) // This value can be found on the back of the sensor's PCB
 
 
 /* Registers definition */
+#define OFFSET_X_REG_L (0x45U) // Hard-iron register
+#define OFFSET_X_REG_H (0x46U) // Hard-iron register
+#define OFFSET_Y_REG_L (0x47U) // Hard-iron register
+#define OFFSET_Y_REG_H (0x48U) // Hard-iron register
+#define OFFSET_Z_REG_L (0x49U) // Hard-iron register
+#define OFFSET_Z_REG_H (0x4AU) // Hard-iron register
+
 #define CFG_REG_A      (0x60U)
 #define CFG_REG_A_VAL  (0x88U) // 10001000 -> ODR=50Hz, COMP_TEMP_EN=1 (Temp compensation enabled), Continuous mode
 
