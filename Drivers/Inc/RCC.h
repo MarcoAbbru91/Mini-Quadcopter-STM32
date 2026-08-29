@@ -79,6 +79,8 @@ DEFINES
 #define RCC_APB1_TIM4_EN       (2UL)
 /* APB1 SPI2 Clock Enable bit (BLE) */
 #define RCC_APB1_SPI2_EN       (14UL)
+/* APB1 I2C2 Clock Enable bit (magnetometer sensor) */
+#define RCC_APB1_I2C_EN        (22UL)
 
 
 /* APB2 Clock Enable Register offset */
@@ -88,6 +90,8 @@ DEFINES
 #define RCC_APB2                (* (volatile uint32_t *)(RCC_APB2_ENR_ADDRESS)) // typecast and dereference
 /* APB2 SPI1 Clock Enable bit (Sensors) */
 #define RCC_APB2_SPI1_EN       (12UL)
+/* APB2 EXTI Clock Enable bit (BLE) */
+#define RCC_APB2_SYSCFGEN_EN   (14UL)
 
 
 /* AHB1 Clock Enable Register offset */
@@ -107,7 +111,7 @@ DEFINES
 FUNCTIONS PROTOTYPES
 ****************************************************************************/
 
-/* Initialize RCC peripherals */
+/* Initialize RCC peripheral */
 void RCC_Init();
 
 #endif /* FIRMWARE_INC_RCC_H_ */

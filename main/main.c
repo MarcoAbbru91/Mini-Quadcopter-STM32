@@ -76,7 +76,6 @@ int main(void)
 	static uint32_t SysTick_Last10ms = 0U;
 	static uint32_t SysTick_Last20ms = 0U;
 
-	/////uint32_t tmpCounter[10] = {0};
 
 	/* Initialize Reset and Clock as well as Flash Memory Interface, required for PLL */
 	RCC_Init();
@@ -115,7 +114,7 @@ int main(void)
 
 
 	/****** TMP code for debugging purposes below to be removed ******/
-	volatile uint8_t who1, who2, who3;
+	//volatile uint8_t who1, who2, who3;
 
 	//LSM6DSR_CS_LOW();
 	//SPI2_FlushRX();
@@ -129,9 +128,9 @@ int main(void)
 	//(void)who2;
 	//LPS22HH_CS_HIGH();
 
-	uint8_t WhoIAm;
-	who3 = I2C_Read(LIS2MDL_I2C_ADDR, 0x4F, &WhoIAm); // // 0x4F is who_I_am register address
-	(void)who3;
+	//uint8_t WhoIAm;
+	//who3 = I2C_Read(LIS2MDL_I2C_ADDR, 0x4F, &WhoIAm); // // 0x4F is who_I_am register address
+	//(void)who3;
 	/****** TMP code for debugging purposes above to be removed ******/
 
 	/* Loop forever */
@@ -158,11 +157,6 @@ int main(void)
 				LIS2MDL_Magnetom_Task(&Magnetom_raw); // 20ms task
 
 				LPS22HH_Pressure_Task(&Pressure_raw); // 20ms task
-
-				/////for(uint8_t i=0; i<10; i++)
-				/////{
-					/////tmpCounter[i] = TIM4_CNT;
-				/////}
 			}
 
 			if((SysTick_Counter - SysTick_Last10ms) >= 10) // Check if 10ms are elapsed

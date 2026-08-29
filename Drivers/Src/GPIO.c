@@ -10,43 +10,116 @@
 
 void GPIO_Init(void)
 {
-	/* Enable Clock for GPIOB peripheral - Needed for PWM on TIM4 (Ch1 to Ch4) */
+	/* Enable Clock for GPIOB peripheral - Needed for PWM on TIM4 (Ch1 to Ch4) as well as for the sensors */
 	RCC_AHB1 |= (0x01UL << RCC_AHB1_GPIOB_EN);
+
+	/* CS SPI pin for the BLE module */
+	/* Clear and Set port to digital output mode */
+	GPIOB_MODER &= ~(0x3UL << GPIOB_MODER_0_OFFSET);
+	GPIOB_MODER |=  (0x1UL << GPIOB_MODER_0_OFFSET); // General Purpose Output mode
+	/* Sets speed for PB0 */
+	GPIOB_OSPEEDR |=  (0x3UL << GPIOB_OSPEEDR_0_OFFSET); // Very High Speed
+	/* SPI Reset pin for the BLE module */
+	/* Clear and Set port to digital output mode */
+	GPIOB_MODER &= ~(0x3UL << GPIOB_MODER_2_OFFSET);
+	GPIOB_MODER |=  (0x1UL << GPIOB_MODER_2_OFFSET); // General Purpose Output mode
+	/* Sets speed for PB2 */
+	GPIOB_OSPEEDR |=  (0x3UL << GPIOB_OSPEEDR_2_OFFSET); // Very High Speed
 	/* Clear and Set port to Alternate Function mode */
 	GPIOB_MODER &= ~(0x3UL << GPIOB_MODER_6_OFFSET);
-	GPIOB_MODER |=  (0x2UL << GPIOB_MODER_6_OFFSET);
+	GPIOB_MODER |=  (0x2UL << GPIOB_MODER_6_OFFSET); // 2 = Alternate Function Mode
 	/* Clear and Set Alternate Function 2 for PB6 port */
 	GPIOB_AFRL &= ~(0xFUL << GPIOB_AFRL_6_OFFSET);
 	GPIOB_AFRL |=  (0x2UL << GPIOB_AFRL_6_OFFSET);
-
-	/* CS SPI pin for the magnetometer sensor */
-	/* Clear and Set port to digital output mode */
-	GPIOB_MODER &= ~(0x3UL << GPIOB_MODER_12_OFFSET);
-	GPIOB_MODER |=  (0x1UL << GPIOB_MODER_12_OFFSET); // General Purpose Output mode
-	/* Sets speed for PC13 */
-	GPIOB_OSPEEDR |=  (0x3UL << GPIOB_OSPEEDR_12_OFFSET); // Very High Speed
-
 	/* Clear and Set port to Alternate Function mode */
 	GPIOB_MODER &= ~(0x3UL << GPIOB_MODER_7_OFFSET);
-	GPIOB_MODER |=  (0x2UL << GPIOB_MODER_7_OFFSET);
+	GPIOB_MODER |=  (0x2UL << GPIOB_MODER_7_OFFSET); // 2 = Alternate Function Mode
 	/* Clear and Set Alternate Function 2 for PB7 port */
 	GPIOB_AFRL &= ~(0xFUL << GPIOB_AFRL_7_OFFSET);
 	GPIOB_AFRL |=  (0x2UL << GPIOB_AFRL_7_OFFSET);
 	/* Clear and Set port to Alternate Function mode */
 	GPIOB_MODER &= ~(0x3UL << GPIOB_MODER_8_OFFSET);
-	GPIOB_MODER |=  (0x2UL << GPIOB_MODER_8_OFFSET);
+	GPIOB_MODER |=  (0x2UL << GPIOB_MODER_8_OFFSET); // 2 = Alternate Function Mode
 	/* Clear and Set Alternate Function 2 for PB8 port */
 	GPIOB_AFRH &= ~(0xFUL << GPIOB_AFRH_8_OFFSET);
 	GPIOB_AFRH |=  (0x2UL << GPIOB_AFRH_8_OFFSET);
 	/* Clear and Set port to Alternate Function mode */
 	GPIOB_MODER &= ~(0x3UL << GPIOB_MODER_9_OFFSET);
-	GPIOB_MODER |=  (0x2UL << GPIOB_MODER_9_OFFSET);
+	GPIOB_MODER |=  (0x2UL << GPIOB_MODER_9_OFFSET); // 2 = Alternate Function Mode
 	/* Clear and Set Alternate Function 2 for PB9 port */
 	GPIOB_AFRH &= ~(0xFUL << GPIOB_AFRH_9_OFFSET);
 	GPIOB_AFRH |=  (0x2UL << GPIOB_AFRH_9_OFFSET);
+	/* CS SPI pin for the magnetometer sensor */
+	/* Clear and Set port to digital output mode */
+	GPIOB_MODER &= ~(0x3UL << GPIOB_MODER_12_OFFSET);
+	GPIOB_MODER |=  (0x1UL << GPIOB_MODER_12_OFFSET); // General Purpose Output mode
+	/* Sets speed for PB12 */
+	GPIOB_OSPEEDR |=  (0x3UL << GPIOB_OSPEEDR_12_OFFSET); // Very High Speed
+	/* CLK SPI pin for the sensors */
+	/* Clear and Set port 13 to Alternate Function mode 13 */
+	GPIOB_MODER &= ~(0x3UL << GPIOB_MODER_13_OFFSET);
+	GPIOB_MODER |=  (0x2UL << GPIOB_MODER_13_OFFSET); // 2 = Alternate Function Mode
+	/* Sets Speed for PA13 */
+	GPIOB_OSPEEDR |=  (0x3UL << GPIOB_OSPEEDR_13_OFFSET); // Very High Speed
+	/* Clear and Set Alternate Function 13 for PB13 port */
+	GPIOB_AFRH &= ~(0xFUL << GPIOB_AFRH_13_OFFSET);
+	GPIOB_AFRH |=  (0x5UL << GPIOB_AFRH_13_OFFSET);
+	/* SDO SPI pin for the sensors */
+	/* Clear and Set port 14 to Alternate Function mode 14 */
+	GPIOB_MODER &= ~(0x3UL << GPIOB_MODER_14_OFFSET);
+	GPIOB_MODER |=  (0x2UL << GPIOB_MODER_14_OFFSET); // 2 = Alternate Function Mode
+	/* Sets Speed for PB14 */
+	GPIOB_OSPEEDR |=  (0x3UL << GPIOB_OSPEEDR_14_OFFSET); // Very High Speed
+	/* Clear and Set Alternate Function 14 for PB14 port */
+	GPIOB_AFRH &= ~(0xFUL << GPIOB_AFRH_14_OFFSET);
+	GPIOB_AFRH |=  (0x5UL << GPIOB_AFRH_14_OFFSET);
+	/* Clear bits for PB14 port */
+	GPIOB_PUPDR &= ~(0x3UL << GPIOB_PUPDR_14_OFFSET); // no pull-up/down
+	/* SDI SPI pin for the sensors */
+	/* Clear and Set port 15 to Alternate Function mode 15 */
+	GPIOB_MODER &= ~(0x3UL << GPIOB_MODER_15_OFFSET);
+	GPIOB_MODER |=  (0x2UL << GPIOB_MODER_15_OFFSET); // 2 = Alternate Function Mode
+	/* Sets Speed for PB15 */
+	GPIOB_OSPEEDR |=  (0x3UL << GPIOB_OSPEEDR_15_OFFSET); // Very High Speed
+	/* Clear and Set Alternate Function 15 for PB15 port */
+	GPIOB_AFRH &= ~(0xFUL << GPIOB_AFRH_15_OFFSET);
+	GPIOB_AFRH |=  (0x5UL << GPIOB_AFRH_15_OFFSET);
+	/* SCL I2C pin for the magnetometer sensor */
+	/* Clear and Set port 10 to Alternate Function mode */
+	GPIOB_MODER &= ~(0x3UL << GPIOB_MODER_10_OFFSET);
+	GPIOB_MODER |=  (0x2UL << GPIOB_MODER_10_OFFSET); // 2 = Alternate Function Mode
+	/* Sets Output Type for PB10 */
+	GPIOB_OTYPER |= (0x1UL << GPIOB_OTYPER_10_OFFSET); // Open-Drain (mandatory for I2C)
+	/* Sets Speed for PB10 */
+	GPIOB_OSPEEDR |= (0x3UL << GPIOB_OSPEEDR_10_OFFSET); // Very High Speed
+	/* Clear bits for PB10 port */
+	GPIOB_PUPDR &= ~(0x3UL << GPIOB_PUPDR_10_OFFSET); // no pull-up/down, the external pull-up resistors are used
+	/* Clear and Set Alternate Function 4 for PB10 port */
+	GPIOB_AFRH &= ~(0xFUL << GPIOB_AFRH_10_OFFSET);
+	GPIOB_AFRH |=  (0x4UL << GPIOB_AFRH_10_OFFSET);
+	/* SDA I2C pin for the magnetometer sensor */
+	/* Clear and Set port 3 to Alternate Function mode */
+	GPIOB_MODER &= ~(0x3UL << GPIOB_MODER_3_OFFSET);
+	GPIOB_MODER |=  (0x2UL << GPIOB_MODER_3_OFFSET); // 2 = Alternate Function Mode
+	/* Sets Output Type for PB3 */
+	GPIOB_OTYPER |= (0x1UL << GPIOB_OTYPER_3_OFFSET); // Open-Drain (mandatory for I2C)
+	/* Sets Speed for PB3 */
+	GPIOB_OSPEEDR |= (0x3UL << GPIOB_OSPEEDR_3_OFFSET); // Very High Speed
+	/* Clear bits for PB3 port */
+	GPIOB_PUPDR &= ~(0x3UL << GPIOB_PUPDR_3_OFFSET); // no pull-up/down, the external pull-up resistors are used
+	/* Clear and Set Alternate Function 9 for PB3 port */
+	GPIOB_AFRL &= ~(0xFUL << GPIOB_AFRL_3_OFFSET);
+	GPIOB_AFRL |=  (0x9UL << GPIOB_AFRL_3_OFFSET);
 
 	/* Enable Clock for GPIOA peripheral - Needed for SCK, MOSI, MISO SPI pins for the three sensors */
 	RCC_AHB1 |= (0x01UL << RCC_AHB1_GPIOA_EN);
+
+	/* SPI IRQ pin for the BLE module */
+	/* Clear and Set port to digital output mode */
+	GPIOA_MODER &= ~(0x3UL << GPIOA_MODER_4_OFFSET);
+	GPIOA_MODER |=  (0x0UL << GPIOA_MODER_4_OFFSET); // Input mode
+	/* Sets speed for PB4 */
+	GPIOA_OSPEEDR |=  (0x3UL << GPIOA_OSPEEDR_4_OFFSET); // Very High Speed
 	/* Clear and Set port 5 to Alternate Function mode 5 */
 	GPIOA_MODER &= ~(0x3UL << GPIOA_MODER_5_OFFSET);
 	GPIOA_MODER |=  (0x2UL << GPIOA_MODER_5_OFFSET);
@@ -87,4 +160,11 @@ void GPIO_Init(void)
 	/* Sets speed for PC13 */
 	GPIOC_OSPEEDR |=  (0x3UL << GPIOC_OSPEEDR_13_OFFSET); // Very High Speed
 }
+
+
+bool BLE_IRQ_ReadGPIO(void)
+{
+	return ((GPIOA_IDR & (1UL << GPIOA_IDR_4_OFFSET)) != 0UL); // Data register for pin PA4 is equal to 1 (HIGH) or 0
+}
+
 

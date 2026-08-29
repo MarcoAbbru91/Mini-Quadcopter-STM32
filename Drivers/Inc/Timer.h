@@ -8,13 +8,18 @@
 #ifndef FIRMWARE_INC_TIMER_H_
 #define FIRMWARE_INC_TIMER_H_
 
+#include <NVIC_EXTI.h>
 #include <stdint.h>
-#include "NVIC.h"
 #include "RCC.h"
 
 /****************************************************************************
 DEFINES
 ****************************************************************************/
+
+#define MAX_DC  2099U  // Maximum duty cycle value. Half of initial "4200" value, since now with center-aligned mode the full PWM period is given by 0 → ARR → 0.  f_PWM = f_Timer / (2 × (ARR+1))
+
+
+#define PLL_CLOCK_SYS_FREQ  84000000
 
 /* Initialize CPU SysTick Timer */
 
@@ -24,6 +29,8 @@ DEFINES
 #define SYSTICK_CTRL_ENABLE_OFFSET  (0UL)
 /* SysTick Timer Control and Status register Systick Exception Request Enable offset */
 #define SYSTICK_CTRL_TICKINT_OFFSET  (1UL)
+/* SysTick Timer Control and Status register Clock Source offset */
+#define SYSTICK_CTRL_CLKSOURCE_OFFSET  (2UL)
 /* SysTick Timer Reload value register base address */
 #define SYSTICK_LOAD  (* (volatile uint32_t *)(0xE000E014UL))
 /* SysTick Timer Value register base address */
@@ -129,7 +136,7 @@ DEFINES
 /* Timer4 CCER OC4P - Capture/Compare 4 Output Polarity offset */
 #define TIM4_CCER_OC4P_OFFSET  (13UL)
 
-/* Timer4 CNT - Timer4 Counter Register */
+/* Timer4 CNT - Timer4 Counter Register - Used mainly for debugging purposes */
 #define TIM4_CNT_OFFSET        (0x24UL)
 #define TIM4_CNT_BASE_ADDRESS  (TIM4_BASE_ADDRESS + TIM4_CNT_OFFSET) // typecast and dereference
 #define TIM4_CNT          (* (volatile uint32_t *)(TIM4_CNT_BASE_ADDRESS)) // typecast and dereference
@@ -164,14 +171,34 @@ DEFINES
 #define TIM4_CCR4_BASE_ADDRESS  (TIM4_BASE_ADDRESS + TIM4_CCR4_OFFSET) // typecast and dereference
 #define TIM4_CCR4          (* (volatile uint32_t *)(TIM4_CCR4_BASE_ADDRESS)) // typecast and dereference
 
+
+
+
+/****************************************************************************
+GLOBAL VARIABLES
+****************************************************************************/
+extern float PWM_Mot1;
+extern float PWM_Mot2;
+extern float PWM_Mot3;
+extern float PWM_Mot4;
+
+
+
 /****************************************************************************
 FUNCTIONS PROTOTYPES
 ****************************************************************************/
+
+/* Create delay in milliseconds */
+void Delay_ms(float ms);
 
 /* Initialize CPU SysTick and General-Purpose Timer peripheral */
 void Timer_Init();
 
 /* Initialize PWM */
 void PWM_Init();
+
+/* Update motor PWM at runtime */
+void PWM_Set(float *PWM_Mot1, float *PWM_Mot2, float *PWM_Mot3, float *PWM_Mot4);
+
 
 #endif /* FIRMWARE_INC_TIMER_H_ */
