@@ -28,6 +28,7 @@
 #include "hci.h"
 #include "LPS22HH.h"
 #include "LSM6DSR.h"
+#include "LIS2MDL.h"
 #include "HAL_Devices.h"
 
 
@@ -55,15 +56,6 @@ DEFINES
 /* FPU CPACR CP11 offset */
 #define FPU_CPACR2_CP11_OFFSET  (22UL) // 2 bits
 
-
-
-
-
-static inline void Enable_FPU(void)
-{
-	FPU_CPACR |= (3UL << FPU_CPACR2_CP10_OFFSET); // FPU Full Access
-	FPU_CPACR |= (3UL << FPU_CPACR2_CP11_OFFSET); // FPU Full Access
-}
 
 
 
@@ -110,11 +102,14 @@ int main(void)
 	LPS22HH_Pressure_Init();
 	/* Initialize IMU sensor */
 	LSM6DSR_IMU_Init();
+	/* Initialize magnetometer sensor */
+	retVal = LIS2MDL_Magnetom_Init();
+	(void)retVal;/* TODO: Add countermeasure for error return */
 	/* Initialize Simulink (flight) controller */
 	//Controller_initialize();
 	/* Initialize BLE */
 	retVal = BLE_Init();
-	(void)retVal;/* TODO Add countermeasure for error return */
+	(void)retVal;/* TODO: Add countermeasure for error return */
 
 
 
@@ -156,6 +151,10 @@ int main(void)
 			if((SysTick_Counter - SysTick_Last20ms) >= 20) // Check if 20ms are elapsed
 			{
 				SysTick_Last20ms = SysTick_Counter;
+
+				/* The magnetometer mainly provides a slow absolute heading reference for yaw. 
+				   20ms is a reasonable scheduling time, since the Earth’s magnetic field does not change rapidly. Furthermore, the magnetometer itself usually has lower bandwidth than IMU's one */
+				LIS2MDL_Magnetom_Task(&Magnetom_raw); // 20ms task
 
 				LPS22HH_Pressure_Task(&Pressure_raw); // 20ms task
 			}

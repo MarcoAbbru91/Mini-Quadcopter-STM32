@@ -94,10 +94,10 @@ FUNCTIONS PROTOTYPES
 void LSM6DSR_IMU_Init(void);
 
 /* IMU periodic task */
-void LSM6DSR_IMU_Task(const IMU_raw_t *Imu_raw);
+void LSM6DSR_IMU_Task(IMU_raw_t *pIMU_raw);
 
 
-void IMU_Data_Conversion(const IMU_raw_t *IMU_raw, IMU_data_conv_t *IMU_converted); // "inline" keyword kept only in .c file, since compilation uses "-std=gnu11", and consequently the C99/C11 inline rules apply
+void IMU_Data_Conversion(const IMU_raw_t *pIMU_raw, IMU_data_conv_t *pIMU_converted); // "inline" keyword kept only in .c file, since compilation uses "-std=gnu11", and consequently the C99/C11 inline rules apply
 
 
 #endif /* DEVICES_LSM6DSR_ACCEL_IMU_INC_LSM6DSR_H_ */

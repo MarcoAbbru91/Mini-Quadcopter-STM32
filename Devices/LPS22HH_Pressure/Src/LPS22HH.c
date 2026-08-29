@@ -43,7 +43,7 @@ void LPS22HH_Pressure_Init()
 }
 
 
-void LPS22HH_Pressure_Task(uint32_t *Pressure_raw)
+void LPS22HH_Pressure_Task(uint32_t *pPressure_raw)
 {
 	uint8_t Pressure_Val[3];
 
@@ -65,14 +65,14 @@ void LPS22HH_Pressure_Task(uint32_t *Pressure_raw)
 	Pressure_Val[2] = SPI2_Read(PRESSURE_OUT_H);
 	LPS22HH_CS_HIGH();
 
-	*Pressure_raw = (uint32_t)Pressure_Val[2]<<16 | (uint32_t)Pressure_Val[1]<<8 | (uint32_t)Pressure_Val[0];
-	(void)Pressure_raw; // only for debug purposes to set breakpoint here
+	*pPressure_raw = (uint32_t)Pressure_Val[2]<<16 | (uint32_t)Pressure_Val[1]<<8 | (uint32_t)Pressure_Val[0];
+	(void)pPressure_raw; // only for debug purposes to set breakpoint here
 	/* Keep result currently in "raw form". Convert to float only when needed, to reduce CPU load */
 }
 
 
-inline void LPS22HH_Data_Conversion(const uint32_t *Pressure_raw, float *Pressure_hPa)
+inline void LPS22HH_Data_Conversion(const uint32_t *pPressure_raw, float *pPressure_hPa)
 {
 	/* Convert raw pressure value into ......   measurement unit */
-	*Pressure_hPa = ((float)*Pressure_raw / PRESSURE_SENSITIVITY); // By-reference update of output parameter
+	*pPressure_hPa = ((float)*pPressure_raw / PRESSURE_SENSITIVITY); // By-reference update of output parameter
 }

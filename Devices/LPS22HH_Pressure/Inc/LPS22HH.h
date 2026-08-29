@@ -61,10 +61,10 @@ FUNCTIONS PROTOTYPES
 void LPS22HH_Pressure_Init(void);
 
 /* Pressure periodic task */
-void LPS22HH_Pressure_Task(uint32_t *Pressure_raw);
+void LPS22HH_Pressure_Task(uint32_t *pPressure_raw);
 
 
-void LPS22HH_Data_Conversion(const uint32_t *Pressure_raw, float *Pressure_hPa); // "inline" keyword kept only in .c file, since compilation uses "-std=gnu11", and consequently the C99/C11 inline rules apply
+void LPS22HH_Data_Conversion(const uint32_t *pPressure_raw, float *pPressure_hPa); // "inline" keyword kept only in .c file, since compilation uses "-std=gnu11", and consequently the C99/C11 inline rules apply
 
 
 #endif /* DEVICES_LPS22HH_PRESSURE_INC_LPS22HH_H_ */

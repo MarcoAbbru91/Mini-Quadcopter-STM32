@@ -52,7 +52,7 @@ void LSM6DSR_IMU_Init()
 }
 
 
-void LSM6DSR_IMU_Task(const IMU_raw_t *Imu_raw)
+void LSM6DSR_IMU_Task(IMU_raw_t *pIMU_raw)
 {
 	uint8_t IMU_Val[12];
 
@@ -75,24 +75,24 @@ void LSM6DSR_IMU_Task(const IMU_raw_t *Imu_raw)
 
 	LSM6DSR_CS_HIGH(); // Set Control Select pin high to finish a transaction
 
-	IMU_raw.Gyroscope_x_raw = (IMU_Val[1]  << 8) | IMU_Val[0];
-	IMU_raw.Gyroscope_y_raw = (IMU_Val[3]  << 8) | IMU_Val[2];
-	IMU_raw.Gyroscope_z_raw = (IMU_Val[5]  << 8) | IMU_Val[4];
-	IMU_raw.Accelerom_x_raw = (IMU_Val[7]  << 8) | IMU_Val[6];
-	IMU_raw.Accelerom_y_raw = (IMU_Val[9]  << 8) | IMU_Val[8];
-	IMU_raw.Accelerom_z_raw = (IMU_Val[11] << 8) | IMU_Val[10];
-	(void)IMU_raw.Gyroscope_x_raw; // only for debug purposes to set breakpoint here
+	pIMU_raw->Gyroscope_x_raw = (IMU_Val[1]  << 8) | IMU_Val[0];
+	pIMU_raw->Gyroscope_y_raw = (IMU_Val[3]  << 8) | IMU_Val[2];
+	pIMU_raw->Gyroscope_z_raw = (IMU_Val[5]  << 8) | IMU_Val[4];
+	pIMU_raw->Accelerom_x_raw = (IMU_Val[7]  << 8) | IMU_Val[6];
+	pIMU_raw->Accelerom_y_raw = (IMU_Val[9]  << 8) | IMU_Val[8];
+	pIMU_raw->Accelerom_z_raw = (IMU_Val[11] << 8) | IMU_Val[10];
+	(void)pIMU_raw->Gyroscope_x_raw; // only for debug purposes to set breakpoint here
 	/* Keep result currently in "raw form". Convert to float only when needed, to reduce CPU load */
 }
 
 
-inline void IMU_Data_Conversion(const IMU_raw_t *IMU_raw, IMU_data_conv_t *IMU_converted)
+inline void IMU_Data_Conversion(const IMU_raw_t *pIMU_raw, IMU_data_conv_t *pIMU_converted)
 {
 	/* Convert raw gyroscope and accelerometer data to actual data with unit format */
-	IMU_converted->Gyroscope_x_radps = (IMU_raw->Gyroscope_x_raw * GYRO_SENSITIVITY); // access it by-reference (equivalent to writing '*' for a variable): to update output parameter
-	IMU_converted->Gyroscope_y_radps = (IMU_raw->Gyroscope_y_raw * GYRO_SENSITIVITY);
-	IMU_converted->Gyroscope_z_radps = (IMU_raw->Gyroscope_z_raw * GYRO_SENSITIVITY);
-	IMU_converted->Accelerom_x_mps2 =  (IMU_raw->Accelerom_x_raw * ACCEL_SENSITIVITY);
-	IMU_converted->Accelerom_y_mps2 =  (IMU_raw->Accelerom_y_raw * ACCEL_SENSITIVITY);
-	IMU_converted->Accelerom_z_mps2 =  (IMU_raw->Accelerom_z_raw * ACCEL_SENSITIVITY);
+	pIMU_converted->Gyroscope_x_radps = (pIMU_raw->Gyroscope_x_raw * GYRO_SENSITIVITY); // access it by-reference (equivalent to writing '*' for a variable): to update output parameter
+	pIMU_converted->Gyroscope_y_radps = (pIMU_raw->Gyroscope_y_raw * GYRO_SENSITIVITY);
+	pIMU_converted->Gyroscope_z_radps = (pIMU_raw->Gyroscope_z_raw * GYRO_SENSITIVITY);
+	pIMU_converted->Accelerom_x_mps2 =  (pIMU_raw->Accelerom_x_raw * ACCEL_SENSITIVITY);
+	pIMU_converted->Accelerom_y_mps2 =  (pIMU_raw->Accelerom_y_raw * ACCEL_SENSITIVITY);
+	pIMU_converted->Accelerom_z_mps2 =  (pIMU_raw->Accelerom_z_raw * ACCEL_SENSITIVITY);
 }
