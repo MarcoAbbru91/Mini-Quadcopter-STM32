@@ -1,5 +1,5 @@
 # Mini-quadcopter with STM32
-Mini quadcopter with STM32 microcontroller, featuring fully bare-metal firmware in C-code (no HAL, no libraries - direct register programming) and control algorithm developed with Matlab/Simulink.
+Mini quadcopter with STM32 microcontroller, featuring bare-metal firmware in C-code (no HAL, no libraries - direct register programming) and control algorithm developed with Matlab/Simulink.
 
 🚧 Project Status: Work in Progress
 
@@ -15,13 +15,13 @@ Pushed on main branch
 - [x] Pressure, Magnetic and Accelerometer/IMU sensors firmware implementation (with related SPI and GPIO configuration).
 - [X] PWM update/optimization (variable frequency PWM and switched to center-aligned)
 - [X] SPI code improvement after full testing of reading sensors' data
-- [X] PID controllers implementation and tuning
-- [X] BLE module configuration
+- [X] BLE module integration
+- [X] Controller implementation and tuning (PIDs, AHRS filter and Kalman filter) in Simulink
+- [X] Addition of magnetometer sensors in the system, together with its I2C driver
 
 In Progress
-- [ ] Addition of magnetometer sensors in the system, together with its I2C driver
-- [ ] Integration of firmware and control algorithm (Simulink generated code)
+- [ ] Complete integration of firmware and control algorithm (Simulink generated code)
 
 Upcoming / In pipeline
 - [ ] Custom makefile (indipendent from STM32CubeIDE internal makefile)
-- [ ] HAL layer creation and firmware code cleanup
+- [ ] HAL layer improvement and firmware code cleanup
