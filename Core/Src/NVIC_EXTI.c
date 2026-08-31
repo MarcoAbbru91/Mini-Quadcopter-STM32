@@ -26,7 +26,7 @@ void Priority_IRQ(uint8_t Irq_n, uint8_t Irq_val)
 
 	/* Sets IRQ value */
 	*pIPR_Addr &= ~(0xFF << IPR_AddrOffset); // Clears current value
-	*pIPR_Addr |=  (Irq_val << IPR_AddrOffset); // Clears current value
+	*pIPR_Addr |=  (Irq_val << IPR_AddrOffset); // Sets actual value
 }
 
 void NVIC_EXTI_Init()
