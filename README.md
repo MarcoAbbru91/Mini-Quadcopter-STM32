@@ -1,5 +1,5 @@
 # Mini-quadcopter with STM32
-Mini quadcopter with STM32 microcontroller, featuring bare-metal firmware in C-code (no HAL, no libraries - direct register programming) and control algorithm developed with Matlab/Simulink.
+Mini quadcopter with STM32 microcontroller, featuring bare-metal firmware in C-code (no libraries, no CMSIS or HAL from STM32 - only direct register programming) and control algorithm developed with Matlab/Simulink.
 
 🚧 Project Status: Work in Progress
 
@@ -25,3 +25,4 @@ In Progress
 Upcoming / In pipeline
 - [ ] Custom makefile (indipendent from STM32CubeIDE internal makefile)
 - [ ] HAL layer improvement and firmware code cleanup
+- [ ] DMA configuration
